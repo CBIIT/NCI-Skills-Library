@@ -1,0 +1,6 @@
+{
+  "skill": "cws-pm",
+  "perks": [
+    {"id": "run", "summary": "composite operator — drive a playbook of sub-skills through govd, tracking + steering against the plan", "destructive": false, "tools": ["cws_pm"]}
+  ]
+}

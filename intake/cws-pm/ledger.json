@@ -1,0 +1,12 @@
+{
+  "_schema": "task-ledger TEMPLATE for cws-pm \u2014 set perk, fill record_store + the vars the perk's manifesto declares.",
+  "skill": "cws-pm",
+  "perk": "run",
+  "record_store": "<absolute dir for outputs + run-ledger>",
+  "vars": {
+    "PLAYBOOK": "<abs path to pm-playbook.json>",
+    "SWARM_DIR": "<abs swarm dir>",
+    "DONE_LEDGER": "<abs done-ledger>",
+    "DRY_RUN": "1"
+  }
+}

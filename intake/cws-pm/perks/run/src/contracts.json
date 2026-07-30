@@ -1,0 +1,16 @@
+{
+  "tool": "cws_pm",
+  "inputs": {
+    "PLAYBOOK": {"type": "string", "required": true},
+    "GOVD_URL": {"type": "string", "required": false},
+    "SWARM_DIR": {"type": "string", "required": false},
+    "DONE_LEDGER": {"type": "string", "required": false},
+    "DRY_RUN": {"type": "string", "required": false},
+    "STOP_ON_FAIL": {"type": "string", "required": false}
+  },
+  "outputs": {
+    "pm_out": {"path": "${RECORD_STORE}/pm.json", "type": "file"},
+    "pm_report": {"path": "${RECORD_STORE}/pm.md", "type": "file"}
+  },
+  "checks": {"exit_zero": true, "output_exists": "${RECORD_STORE}/pm.json"}
+}

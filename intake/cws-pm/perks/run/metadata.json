@@ -1,0 +1,15 @@
+{
+  "perk": "run",
+  "skill": "cws-pm",
+  "description": "composite operator — drive a playbook of sub-skills through govd, tracking + steering against the plan (the top-layer project manager)",
+  "rules": [
+    "a composite skill fires OTHER skills (the playbook's caller skills) via run_governed; it runs no tools of its own",
+    "idempotent: a task already redeemed (done-ledger v1+v2) is skipped",
+    "per step: fire the sub-skill validator; on a clean governed pass, optionally redeem via cws-observe/redeem",
+    "steers: STOP_ON_FAIL halts the sequence; otherwise it collects and reports blocked/failed for the operator to adjust",
+    "DRY_RUN validates the playbook (every skill/perk exists) without firing"
+  ],
+  "usage": "Set PLAYBOOK (a JSON list of {task_id, skill, perk, vars, redeem}). Optional GOVD_URL, SWARM_DIR + DONE_LEDGER (for skip-if-redeemed + redemption), DRY_RUN, STOP_ON_FAIL. Output: pm.json (per-step + roll-up).",
+  "limitation": "It DRIVES redeemable steps (validators whose subject already exists + inputs are declared); it cannot author the subject — tasks needing construction are reported for the agent/operator to build, then re-run. Fires sub-skills against a running govd.",
+  "minimal_example": {"perk": "run", "vars": {"PLAYBOOK": "playbook.json", "SWARM_DIR": "workzone/version1.1/cyberware-swarm-v1.1"}}
+}

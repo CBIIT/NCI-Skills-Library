@@ -1,0 +1,11 @@
+{
+  "_perk": "run",
+  "sequence": ["cws_pm"],
+  "tools": {"cws_pm": {"binary": "python3", "params": {"PLAYBOOK": "${PLAYBOOK}"}}},
+  "env": {
+    "PLAYBOOK": "${PLAYBOOK}", "GOVD_URL": "${GOVD_URL}", "SWARM_DIR": "${SWARM_DIR}",
+    "DONE_LEDGER": "${DONE_LEDGER}", "GOVD_ROOT": "${GOVD_ROOT}", "DRY_RUN": "${DRY_RUN}",
+    "STOP_ON_FAIL": "${STOP_ON_FAIL}", "RECORD_STORE": "${record_store}"
+  },
+  "requires": ["python3"]
+}

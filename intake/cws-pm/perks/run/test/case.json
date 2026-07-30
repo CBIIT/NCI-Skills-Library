@@ -1,0 +1,10 @@
+{
+  "_perk": "run",
+  "requires": ["python3"],
+  "vars": {"PLAYBOOK": "${FIXTURE}/playbook.json", "DRY_RUN": "1"},
+  "expect": {
+    "exit": 0,
+    "outputs": ["pm.json", "pm.md"],
+    "json": {"pm.json": {"status": "ok", "dry_run": true, "total": 2, "counts": {"dry": 2}}}
+  }
+}

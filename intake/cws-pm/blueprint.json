@@ -1,0 +1,103 @@
+{
+  "$schema": "lpp/v0.2.0",
+  "id": "cws-pm",
+  "name": "Composite Operator (PM)",
+  "description": "Drive a playbook of sub-skills through the governed channel \u2014 the top-layer project manager that follows the plan and adjusts. Perk-agnostic lifecycle (ready->prepared->verified->executed). LOOK OUT FOR pm.json; LOGS: the executor run-ledger + each sub-run.",
+  "entry_state": "ready",
+  "states": {
+    "ready": {
+      "description": "task-ledger submitted, nothing run"
+    },
+    "prepared": {
+      "description": "inputs validated \u2014 required vars present, runtime + store reachable"
+    },
+    "verified": {
+      "description": "the plan is contract-bound \u2014 the perk's tool sequence resolves and its contract (I/O + checks) is in place"
+    },
+    "executed": {
+      "description": "the perk's tool sequence ran ONLY via executor.py \u2014 each step is recorded to the run-ledger AS it runs (recording is part of execution, not a step after)"
+    }
+  },
+  "terminal_states": {
+    "executed": {}
+  },
+  "gates": {
+    "g_prepared": {
+      "type": "expression",
+      "expression": "inputs_present /\\ store_writable",
+      "description": "inputs + store validated"
+    },
+    "g_verified": {
+      "type": "expression",
+      "expression": "sequence_resolved /\\ contracts_present",
+      "description": "the task is contract-bound"
+    },
+    "g_governed": {
+      "type": "expression",
+      "expression": "governed_run /\\ contract_checks_pass",
+      "description": "ran ONLY through executor.py; contract enforced"
+    }
+  },
+  "actions": {
+    "a_prepare": {
+      "type": "compute",
+      "compute_unit": "validator:check_inputs",
+      "description": "validator confirms required vars + writable record_store + reachable runtime"
+    },
+    "a_verify": {
+      "type": "compute",
+      "compute_unit": "validator:check_contract",
+      "description": "confirm the perk's sequence + contracts are bound"
+    },
+    "a_execute": {
+      "type": "compute",
+      "compute_unit": "perk:sequence",
+      "description": "run the perk's tool sequence via executor.py \u2014 recording each step to the run-ledger as it runs"
+    }
+  },
+  "transitions": [
+    {
+      "from": "ready",
+      "to": "prepared",
+      "trigger": "PREPARE",
+      "action": "a_prepare",
+      "gate": "g_prepared"
+    },
+    {
+      "from": "prepared",
+      "to": "verified",
+      "trigger": "VERIFY",
+      "action": "a_verify",
+      "gate": "g_verified"
+    },
+    {
+      "from": "verified",
+      "to": "executed",
+      "trigger": "EXECUTE",
+      "action": "a_execute",
+      "gate": "g_governed"
+    }
+  ],
+  "safety_invariants": [
+    {
+      "name": "governed_execution_only",
+      "expression": "state /= 'executed' \\/ governed_run",
+      "description": "GUARDRAIL: a task reaches 'executed' ONLY through executor.py \u2014 the single governed channel; the runtime is the enforcement."
+    },
+    {
+      "name": "record_during_execution",
+      "expression": "state /= 'executed' \\/ recorded_each_step",
+      "description": "GUARDRAIL: recording is PART of executing \u2014 each step is written to the run-ledger as it runs, not in a separate phase after."
+    },
+    {
+      "name": "verify_before_execute",
+      "expression": "state /= 'executed' \\/ contract_bound",
+      "description": "GUARDRAIL: nothing executes until its tool sequence + contract are bound."
+    },
+    {
+      "name": "oversight_clears_script",
+      "expression": "state /= 'executed' \\/ oversight_cleared",
+      "description": "GUARDRAIL: the compiled script must clear OVERSIGHT_RULE \u2014 enforced INSIDE the executor (scanned before any step runs; approvable rules waived only by an explicit --approve, recorded in the run-ledger)."
+    }
+  ]
+}
