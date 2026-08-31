@@ -1,0 +1,14 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE (user-specific)
+.idea/
+*.iml
+.vscode/
+.kiro/
+
+# Environment / secrets
+.env
+*.key
+
