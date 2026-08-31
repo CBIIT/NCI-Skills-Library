@@ -18,13 +18,15 @@ Step-by-step guide to stand up a new Python Lambda application in NCI Cloud One 
 
 Open the access portal, choose **AWS IAM Identity Center**, select the target account and role, then use **Management Console** or copy temporary **Access Keys**.
 
+<mark>Note: some of this could be simplified if the AWS CLI was installed. But then we would need to support that installation</mark>
+
 ## Required Inputs
 Before starting, collect:
 1. **App name** — used as the base for the stack name and SAM logical IDs
 2. **GitHub repository** — `<owner>/<repo>` (must exist or be created as part of this process)
 3. **Cloud One tier** — Sandbox or Development (determines access portal URL above)
 4. **Stack name** — the CloudFormation stack name, e.g. `my-app-dev`; treat this as user-supplied and environment-specific
-5. **AWS region** — default `us-east-2` unless the account requires otherwise
+5. **AWS region** — default `us-east-2` unless the account requires otherwise <mark>our default is us-east-1</mark>
 6. **AWS deploy role ARN** — IAM role for OIDC assumption (see [IAM Role Discovery](#iam-role-discovery))
 
 ## Phase 1 — GitHub Repository
@@ -45,7 +47,7 @@ cd <repo>
 ```
 
 Your repository must contain at minimum:
-- `src/app.py` — Lambda handler
+- `src/app.py` — Lambda handler <mark>There is an AWS standard that this is named function.py. Depending on your deployment methology a different name may work, but conforming will make it always work</mark>
 - `template.yaml` — AWS SAM template
 - `requirements.txt` — runtime dependencies
 - `.github/workflows/deploy.yml` — deployment workflow (created in Phase 3)
@@ -205,10 +207,10 @@ https://github.com/<owner>/<repo>/settings/environments
 ### Variables (non-secret, visible in logs)
 Set at the environment level so each environment can target a different stack/region:
 
-| Variable | Example value | Notes |
-|---|---|---|
-| `AWS_REGION` | `us-east-2` | AWS region for the CloudFormation stack |
-| `STACK_NAME` | `my-app-dev` | CloudFormation stack name — **user-supplied per environment** |
+| Variable | Example value | Notes                                                          |
+|---|---|----------------------------------------------------------------|
+| `AWS_REGION` | `us-east-2` <mark>us-east-1</mark> | AWS region for the CloudFormation stack |
+| `STACK_NAME` | `my-app-dev` | CloudFormation stack name — **user-supplied per environment**  |
 
 Add any app-specific variables your SAM template needs here as well.
 
