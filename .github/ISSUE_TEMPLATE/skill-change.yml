@@ -1,0 +1,72 @@
+name: Skill change
+description: Request a new skill or an update to an existing skill.
+title: "[Skill]: "
+labels:
+  - workflow: triage
+body:
+  - type: dropdown
+    id: change-type
+    attributes:
+      label: Change type
+      options:
+        - New skill
+        - Update an existing skill
+        - Retire a skill
+        - Correction or broken link
+    validations:
+      required: true
+  - type: input
+    id: skill-path
+    attributes:
+      label: Skill path
+      description: Use the proposed repository-relative path, such as framework/cicd/example/SKILL.md.
+      placeholder: framework/category/skill-name/SKILL.md
+    validations:
+      required: true
+  - type: dropdown
+    id: assignment-group
+    attributes:
+      label: Assignment group
+      options:
+        - NCI-Skills-Triage
+        - NCI-Skills-Cloud
+        - NCI-Skills-Governance
+        - NCI-Skills-Security
+        - NCI-Skills-Reviewers
+        - NCI-Skills-Release
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      default: 2
+      options:
+        - Critical
+        - High
+        - Normal
+        - Low
+    validations:
+      required: true
+  - type: textarea
+    id: requested-change
+    attributes:
+      label: Requested change
+      description: Describe what the skill should cover and why it is needed.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance criteria
+      description: List the observable conditions that make this request complete.
+      placeholder: |
+        - The skill includes...
+        - The guidance links to...
+    validations:
+      required: true
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: Add source material, policy links, examples, or related issues.

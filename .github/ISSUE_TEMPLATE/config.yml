@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Skills workflow
+    url: https://github.com/CBIIT/NCI-Skills-Library/blob/main/.github/WORKFLOW.md
+    about: Review the triage and pull request workflow before submitting a request.
