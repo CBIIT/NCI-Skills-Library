@@ -2,7 +2,7 @@ name: Skill change
 description: Request a new skill or an update to an existing skill.
 title: "[Skill]: "
 labels:
-  - workflow: triage
+  - "workflow: triage"
 body:
   - type: dropdown
     id: change-type
