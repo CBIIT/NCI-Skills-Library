@@ -1,0 +1,7 @@
+# All changes require release management review after Code Owner protection is enabled.
+* @CBIIT/nci-skills-release
+
+# Domain teams review changes within their subject areas.
+/framework/cicd/ @CBIIT/nci-skills-cloud @CBIIT/nci-skills-release
+/framework/governance/ @CBIIT/nci-skills-governance @CBIIT/nci-skills-release
+/framework/security/ @CBIIT/nci-skills-security @CBIIT/nci-skills-release
