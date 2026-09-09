@@ -1,0 +1,54 @@
+name: Skill catalog
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "framework/**"
+      - "intake/**"
+      - "tools/**"
+      - ".github/workflows/catalog.yml"
+  pull_request:
+    paths:
+      - "framework/**"
+      - "intake/**"
+      - "tools/**"
+
+permissions:
+  contents: write
+
+jobs:
+  catalog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # Report-only until framework/ has been retrofitted to the template.
+      # Add --strict here to make curated skills blocking.
+      - name: Check skills against the template
+        run: node tools/lint-skills.mjs
+
+      - name: Verify catalog is up to date
+        if: github.event_name == 'pull_request'
+        run: node tools/build-catalog.mjs --check
+
+      - name: Regenerate catalog
+        if: github.event_name == 'push'
+        run: node tools/build-catalog.mjs
+
+      - name: Commit catalog if it changed
+        if: github.event_name == 'push'
+        run: |
+          if [[ -n "$(git status --porcelain framework/catalog.json)" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add framework/catalog.json
+            git commit -m "chore: regenerate skill catalog"
+            git push
+          else
+            echo "Catalog already up to date."
+          fi

@@ -3,6 +3,7 @@ name: cloud-one-github-actions-lambda-deployment
 description: 'Deploy a new Python Lambda application to NCI Cloud One (Sandbox or Development) from a fresh GitHub repository using GitHub Actions, OIDC role assumption, and SAM. Covers repo creation, environment variable and secret configuration, workflow scaffold, and post-deploy smoke tests.'
 argument-hint: 'Provide app name, GitHub repo (owner/repo), target Cloud One tier (Sandbox or Development), and stack name'
 user-invocable: true
+requires: [git, gh, python3, pip, aws, sam]
 ---
 
 # Cloud One GitHub Actions Lambda Deployment
