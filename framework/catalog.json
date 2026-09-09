@@ -50,7 +50,7 @@
       "path": "framework/nci_startup/SKILL.md",
       "tier": "framework",
       "category": "nci_startup",
-      "description": "Use this skill when you are beginning a piece of work at NCI and do not yet know which NCI skills apply. It helps technical staff who do not write code choose, download, and set up the right skills from the NCI Skills Library, and check that their computer has the tools those skills need. Produces an installed set of skills, a tool readiness report, and a plain-English summary of what happened and what to do next.",
+      "description": "Use this skill when you are beginning a piece of work at NCI and do not yet know which NCI skills apply. It helps technical staff who do not write code choose, download, and set up the right skills from the NCI Skills Library, check that their computer has the tools those skills need, and get a small working application running. Produces an installed set of skills, a tool readiness report, a running hello world with a health check, a registry entry recording the application, and a plain-English summary of what happened and what to do next.",
       "author": "<author-name/DOC>",
       "subjectMatterExpert": "<sme-name/DOC>",
       "language": "",
@@ -60,7 +60,8 @@
         "You are starting a brand new project and do not know which NCI skills apply.",
         "You have inherited an existing codebase or repository and want to know what",
         "Your work is not a software build at all, for example a documentation,",
-        "You want a single guided setup rather than hunting through the library"
+        "You want a single guided setup rather than hunting through the library",
+        "You want a small working starting point, with a health check and a registry"
       ],
       "antiTriggers": [
         "You already know exactly which NCI skill you need. Load that skill directly.",

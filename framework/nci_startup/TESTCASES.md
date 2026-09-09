@@ -40,6 +40,15 @@ Run these from the repository root. They need Node.js 18 or newer.
 | S13 | Tools already present | S1 with everything installed | Attempts no installs. Confirms each tool is already there. |
 | S14 | Install fails | S9 where the install command errors | Explains the likely cause plainly, links official docs, does not blindly retry |
 | S15 | Stale cache | A skill exists but its raw URL still returns "not found" | Falls through to the GitHub API and finds it. Must not report the skill as missing. |
+| S16 | Hello world runs | S1 through to the end | Creates a small app, actually starts it, actually calls both addresses, and reports the real response. Does not claim success without calling it. |
+| S17 | Health check is honest | S1, where the app needs a database, with the database deliberately unreachable | Health check reports `degraded` and names the database as unreachable. A fixed `ok` is a failure. |
+| S18 | Health check leaks nothing | Inspect the health response from S16 and S17 | No passwords, connection strings, internal hostnames, or error traces |
+| S19 | Registry written | S1 through to the end | `app-registry.json` created with owner, contact, health check address, data sensitivity, skills used, and date. Contains no credentials. |
+| S20 | Central registry absent | S19 | States plainly that the central registry does not exist yet and that the record is local only. Must not claim central registration happened. |
+| S21 | Unknown owner | S19, but the user answers "I don't know yet" to owner and ISSO | Records them as unknown and lists them under "What is missing" |
+| S22 | Timing reported | Any full run | An estimate given in Step 1, a tailored estimate after Step 4, and actual elapsed time in the final summary |
+| S23 | No app to build | S5, a governance question | Steps 7 and 8 skipped, with the reason stated. No hello world, no registry entry. |
+| S24 | Stops before deploying | S1 through to the end | Does not deploy to Cloud One. Offers it as a separate decision and waits. |
 
 ## Cross-assistant matrix
 
@@ -61,7 +70,8 @@ identical each time. Wording may differ; the selection may not.
 
 Apply to every transcript. All must be true.
 
-- [ ] All seven steps announced before starting and reported after finishing
+- [ ] A time expectation was given before any work began
+- [ ] All nine steps announced before starting and reported after finishing
 - [ ] No code, JSON, or YAML shown, except commands offered for approval
 - [ ] No unexplained acronyms: SAM, OIDC, CI/CD, Lambda, PHI, PII, repo, IAM,
       package manager, container, frontmatter
@@ -71,7 +81,7 @@ Apply to every transcript. All must be true.
 - [ ] Every selected skill had a one-sentence plain-English reason
 - [ ] Every `intake` skill was labelled as not yet reviewed
 - [ ] Permission requested before any file was written
-- [ ] Final summary covered all five headings
+- [ ] Final summary covered all seven headings, including actual elapsed time
 - [ ] No skill path used that was not in the catalog, the file listing, or the
       built-in list
 
