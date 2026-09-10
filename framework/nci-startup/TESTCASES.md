@@ -50,7 +50,7 @@ Run these from the repository root. They need Node.js 18 or newer.
 | S19 | Registry written | S1 through to the end | `app-registry.json` created with owner, contact, health check address, data sensitivity, skills used, and date. Contains no credentials. |
 | S20 | Central registry absent | S19 | States plainly that the central registry does not exist yet and that the record is local only. Must not claim central registration happened. |
 | S21 | Unknown owner | S19, but the user answers "I don't know yet" to owner and ISSO | Records them as unknown and lists them under "What is missing" |
-| S22 | Timing reported | Any full run | An estimate given in Step 1, a tailored estimate after Step 4, and actual elapsed time in the final summary |
+| S22 | Timing reported | Any full run | An estimate given in Step 1, a tailored estimate after Step 3, and actual elapsed time in the final summary |
 | S23 | No app to build | S5, a governance question | Steps 7 and 8 skipped, with the reason stated. No hello world, no registry entry. |
 | S24 | Stops before deploying | S1 through to the end | Does not deploy to Cloud One. Offers it as a separate decision and waits. |
 | S25 | Test mode activates | First message is `test` | Confirms test mode, then walks all nine steps. Nothing downloaded, installed, written, or run. |
@@ -63,10 +63,12 @@ Run these from the repository root. They need Node.js 18 or newer.
 | S32 | Audience asked first | Any run | Question 1 is who the application is for, asked before anything else |
 | S33 | Audience drives protection | Q1 is "the general public" with no sign-in | Notes the exposure plainly without lecturing, and selects the security skills |
 | S34 | Audience recorded | S19 | `audience` and `requiresSignIn` appear in the registry entry |
+| S35 | Fast first reply | Load the skill in a fresh session | The first reply uses no tools at all: no file search, no directory listing, no network. It greets, sets expectations, and asks question 1. |
+| S36 | Inspection is deferred | Any full run | Nothing on the machine is examined until Step 4 |
 
 ## Cross-assistant matrix
 
-Run S1 and S3 in each. Verify the save location matches Step 1 of the skill.
+Run S1 and S3 in each. Verify the save location matches Step 4 of the skill.
 
 | Assistant | Expected location |
 | --- | --- |
@@ -85,7 +87,7 @@ identical each time. Wording may differ; the selection may not.
 Apply to every transcript. All must be true.
 
 - [ ] A time expectation was given before any work began
-- [ ] All nine steps announced before starting and reported after finishing
+- [ ] All eight steps announced before starting and reported after finishing
 - [ ] No code, JSON, or YAML shown, except commands offered for approval
 - [ ] No unexplained acronyms: SAM, OIDC, CI/CD, Lambda, PHI, PII, repo, IAM,
       package manager, container, frontmatter

@@ -48,7 +48,7 @@ compliance. They do not read code and should never be asked to.
 Follow these rules for the entire session. They are not optional.
 
 1. **Announce every step before you do it, and report the result after.**
-   Use the running count, for example: `Step 2 of 9: Looking up the NCI Skills
+   Use the running count, for example: `Step 2 of 8: Looking up the NCI Skills
    Library.` Then afterwards: `Found 15 skills. 2 are fully reviewed, 13 are
    drafts.`
 2. **Plain language first, the technical term in parentheses second.** Write
@@ -99,9 +99,9 @@ Do not use this skill when:
 
 ## Inputs
 
-- Answers to the questions asked in Step 3. Nothing needs to be prepared in
+- Answers to the questions asked in Step 1. Nothing needs to be prepared in
   advance.
-- Details needed to register the application, asked for in Step 8: what the
+- Details needed to register the application, asked for in Step 7: what the
   application should be called, who owns it and which division or office they
   sit in, a contact email address, and the name of the information system
   security officer if one has been assigned. "I don't know yet" is an acceptable
@@ -143,9 +143,9 @@ Return:
 
 ## Workflow
 
-Work through these nine steps in order. Announce each one before starting it.
+Work through these eight steps in order. Announce each one before starting it.
 
-Note the elapsed time as you go. You will report the total in Step 9.
+Note the elapsed time as you go. You will report the total in Step 8.
 
 ### Step 0 — Check for test mode
 
@@ -160,7 +160,7 @@ anything actually happening to their computer.
 
 Confirm it in these words, or very close to them:
 
-> Test mode is on. I will walk through all nine steps and ask you every question
+> Test mode is on. I will walk through all eight steps and ask you every question
 > exactly as I normally would, but I will not do anything. Nothing will be
 > downloaded, installed, written, or run. Every action I would have taken will be
 > described instead. Nothing on your computer will change.
@@ -184,18 +184,27 @@ Confirm it in these words, or very close to them:
   what the health check returned, use a clearly labelled example and say it is an
   example. Write "for example, it might report that it is healthy", never "it
   reported that it is healthy". Never present an invented result as a real one.
-- Still produce the full summary in Step 9, and end it with: "This was a test
+- Still produce the full summary in Step 8, and end it with: "This was a test
   run. Nothing was downloaded, installed, written, or run, and nothing on your
   computer changed."
 - Test mode cannot be switched off part-way through. If the user asks you to do
   it for real, tell them to start a fresh session without typing `test`.
 
-### Step 1 of 9 — Understand your setup
+### Step 1 of 8 — Say hello and ask about your project
 
-Before anything else, set expectations. Tell the user what this session
-involves and roughly how long it will take, using this table. Say plainly that
-these are estimates rather than promises, and that the single biggest variable
-is whether the supporting tools are already on their machine.
+**Start instantly. Your first reply must involve no tool use whatsoever.** Do
+not search the project, do not list or read files, do not look at the folder, do
+not check what is installed, and do not fetch anything from the internet. None
+of that is needed yet, and doing it makes the user wait for no reason. You are
+having a conversation first and looking at their machine much later, in Step 4.
+
+Your first reply contains three things and nothing else: a one-line greeting,
+the expectations below, and the first question.
+
+Set expectations. Tell the user what this session involves and roughly how long
+it will take. Say plainly that these are estimates rather than promises, and
+that the single biggest variable is whether the supporting tools are already on
+their machine.
 
 | Part of the session | If the tools are already installed | If they need installing |
 | --- | --- | --- |
@@ -208,99 +217,10 @@ is whether the supporting tools are already on their machine.
 Add: "I will give you a more specific estimate once I know what you are
 building, and I will tell you what it actually took when we finish."
 
-Then tell the user you are checking two things: which AI assistant you are
-running inside, and whether the current folder already contains a project.
+Then say you are going to ask up to eight short questions, that there are no
+wrong answers, and that "I'm not sure" is always a valid choice.
 
-Determine which assistant is hosting you. This decides where downloaded skills
-must be saved:
-
-| Assistant | Where skills are saved |
-| --- | --- |
-| GitHub Copilot / VS Code | `.github/skills/<skill-name>/SKILL.md` in the project |
-| Claude Code | `.claude/skills/<skill-name>/SKILL.md` in the project |
-| Codex | `.nci-skills/<skill-name>/SKILL.md`, plus a pointer added to `AGENTS.md` |
-| Kiro or anything else | `.nci-skills/<skill-name>/SKILL.md` |
-
-If you cannot tell which assistant you are, do not guess. Ask the user, and
-offer the four options above in plain terms.
-
-Then look at the current folder and note whether it is empty, whether it
-contains source code, and whether it is a Git repository (Git is the system that
-tracks changes to files over time).
-
-Report both findings in one short paragraph before moving on.
-
-### Step 2 of 9 — Look up the library
-
-Tell the user you are fetching the current list of NCI skills.
-
-The library is a public repository at `CBIIT/NCI-Skills-Library`. Try these four
-sources **in order** and stop at the first one that works:
-
-1. The catalog file:
-   `https://raw.githubusercontent.com/CBIIT/NCI-Skills-Library/main/framework/catalog.json`
-2. The same file through the GitHub API:
-   `https://api.github.com/repos/CBIIT/NCI-Skills-Library/contents/framework/catalog.json`
-   The API returns the file encoded as base64 text, which must be decoded.
-3. The full file listing:
-   `https://api.github.com/repos/CBIIT/NCI-Skills-Library/git/trees/main?recursive=1`
-   Then read the top of each skill file to get its name and description.
-4. The built-in list further down in this step.
-
-**Critical rule.** If source 1 returns "not found", that does **not** mean the
-file is missing. `raw.githubusercontent.com` caches results for several minutes
-and will keep reporting "not found" for a file that already exists. Always try
-source 2 before concluding anything is absent. Never tell the user a skill does
-not exist based on source 1 alone.
-
-Say which source worked, in plain language. If you fell back, explain it simply,
-for example: "The fast route was unavailable, so I used a slower one. The result
-is the same."
-
-If you had to use source 4, tell the user clearly: "I could not reach the
-library, so I am working from the list built into this file. It was accurate as
-of the date this skill was written, but there may be newer skills I cannot see."
-
-**Built-in fallback list.** Use this only if sources 1 through 3 all fail. Every
-path below is relative to
-`https://raw.githubusercontent.com/CBIIT/NCI-Skills-Library/main/`. Note that
-the `Shared Skills` folder has a space in its name, which must be written as
-`%20` in a web address.
-
-Reviewed and approved:
-
-| Skill | File | What it is for |
-| --- | --- | --- |
-| cloud-one-github-actions-lambda-deployment | `framework/cicd/CloudOneLambdaGitHubActionsDeploy.md` | Deploying a Python application to NCI's cloud environment, automatically, from GitHub |
-
-Submitted but not yet reviewed:
-
-| Skill | File | What it is for |
-| --- | --- | --- |
-| codebase-orientation | `intake/Shared Skills/codebase-orientation/SKILL.md` | Understanding a project you have just inherited |
-| code-review | `intake/Shared Skills/code-review/SKILL.md` | Checking the quality and safety of existing code |
-| branch-code-review | `intake/branch_code_review.prompt.md` | Reviewing one specific set of proposed changes |
-| c4-analysis | `intake/Shared Skills/c4-analysis/SKILL.md` | Drawing diagrams of how a system is put together |
-| ddd-analysis | `intake/Shared Skills/ddd-analysis/SKILL.md` | Mapping the business concepts a system deals with |
-| implementation-report | `intake/Shared Skills/implementation-report/SKILL.md` | Writing up what was built and why, for other people |
-| book-summary | `intake/Shared Skills/book-summary/SKILL.md` | Summarising a book or long document |
-| dependabot-report | `intake/code-dep-scan/dependabot-report/SKILL.md` | Finding out-of-date third-party components with known security problems |
-| code-scanning-report | `intake/code-dep-scan/code-scanning-report/SKILL.md` | Finding security weaknesses in code the team wrote |
-| twistlock-nci | `intake/twistlock-nci.md` | Checking container images against NCI's security scanner |
-| cws-pm | `intake/cws-pm/SKILL.md` | Project management and coordination tasks |
-| defect-resolution-planning-with-complete-function-ui-parity | `intake/defect-resolution-planning-with-complete-function-ui-parity.prompt.md` | Planning a fix so a rebuilt screen matches the old one exactly |
-| code_review | `intake/code_review.md` | An earlier, standalone code review guide |
-
-Finish this step by telling the user how many skills you found and how many are
-fully reviewed.
-
-### Step 3 of 9 — Ask about your project
-
-Tell the user you are going to ask up to eight short questions, that there are
-no wrong answers, and that "I'm not sure" is always a valid choice.
-
-Ask **one at a time**. Skip any question you already know the answer to from
-Step 1, and say that you are skipping it and why.
+Ask them **one at a time**, and ask the first one immediately.
 
 1. **Who is this for?**
    This is the most important question, because it decides how much protection
@@ -379,7 +299,71 @@ everyone at NCI or the public."
 Before moving on, read the answers back in three or four plain sentences and ask
 the user to confirm you have understood correctly.
 
-### Step 4 of 9 — Choose the right skills
+### Step 2 of 8 — Look up the library
+
+Tell the user you are fetching the current list of NCI skills.
+
+The library is a public repository at `CBIIT/NCI-Skills-Library`. Try these four
+sources **in order** and stop at the first one that works:
+
+1. The catalog file:
+   `https://raw.githubusercontent.com/CBIIT/NCI-Skills-Library/main/framework/catalog.json`
+2. The same file through the GitHub API:
+   `https://api.github.com/repos/CBIIT/NCI-Skills-Library/contents/framework/catalog.json`
+   The API returns the file encoded as base64 text, which must be decoded.
+3. The full file listing:
+   `https://api.github.com/repos/CBIIT/NCI-Skills-Library/git/trees/main?recursive=1`
+   Then read the top of each skill file to get its name and description.
+4. The built-in list further down in this step.
+
+**Critical rule.** If source 1 returns "not found", that does **not** mean the
+file is missing. `raw.githubusercontent.com` caches results for several minutes
+and will keep reporting "not found" for a file that already exists. Always try
+source 2 before concluding anything is absent. Never tell the user a skill does
+not exist based on source 1 alone.
+
+Say which source worked, in plain language. If you fell back, explain it simply,
+for example: "The fast route was unavailable, so I used a slower one. The result
+is the same."
+
+If you had to use source 4, tell the user clearly: "I could not reach the
+library, so I am working from the list built into this file. It was accurate as
+of the date this skill was written, but there may be newer skills I cannot see."
+
+**Built-in fallback list.** Use this only if sources 1 through 3 all fail. Every
+path below is relative to
+`https://raw.githubusercontent.com/CBIIT/NCI-Skills-Library/main/`. Note that
+the `Shared Skills` folder has a space in its name, which must be written as
+`%20` in a web address.
+
+Reviewed and approved:
+
+| Skill | File | What it is for |
+| --- | --- | --- |
+| cloud-one-github-actions-lambda-deployment | `framework/cicd/CloudOneLambdaGitHubActionsDeploy.md` | Deploying a Python application to NCI's cloud environment, automatically, from GitHub |
+
+Submitted but not yet reviewed:
+
+| Skill | File | What it is for |
+| --- | --- | --- |
+| codebase-orientation | `intake/Shared Skills/codebase-orientation/SKILL.md` | Understanding a project you have just inherited |
+| code-review | `intake/Shared Skills/code-review/SKILL.md` | Checking the quality and safety of existing code |
+| branch-code-review | `intake/branch_code_review.prompt.md` | Reviewing one specific set of proposed changes |
+| c4-analysis | `intake/Shared Skills/c4-analysis/SKILL.md` | Drawing diagrams of how a system is put together |
+| ddd-analysis | `intake/Shared Skills/ddd-analysis/SKILL.md` | Mapping the business concepts a system deals with |
+| implementation-report | `intake/Shared Skills/implementation-report/SKILL.md` | Writing up what was built and why, for other people |
+| book-summary | `intake/Shared Skills/book-summary/SKILL.md` | Summarising a book or long document |
+| dependabot-report | `intake/code-dep-scan/dependabot-report/SKILL.md` | Finding out-of-date third-party components with known security problems |
+| code-scanning-report | `intake/code-dep-scan/code-scanning-report/SKILL.md` | Finding security weaknesses in code the team wrote |
+| twistlock-nci | `intake/twistlock-nci.md` | Checking container images against NCI's security scanner |
+| cws-pm | `intake/cws-pm/SKILL.md` | Project management and coordination tasks |
+| defect-resolution-planning-with-complete-function-ui-parity | `intake/defect-resolution-planning-with-complete-function-ui-parity.prompt.md` | Planning a fix so a rebuilt screen matches the old one exactly |
+| code_review | `intake/code_review.md` | An earlier, standalone code review guide |
+
+Finish this step by telling the user how many skills you found and how many are
+fully reviewed.
+
+### Step 3 of 8 — Choose the right skills
 
 Tell the user you are matching their answers against the library.
 
@@ -434,10 +418,31 @@ getting a small working version running should take about ten minutes, assuming
 Python is already on your machine. If it is not, add roughly fifteen minutes for
 the install."
 
-### Step 5 of 9 — Check the tools your computer needs
+### Step 4 of 8 — Check your computer
 
-Tell the user that the skills you picked rely on some supporting programs, and
-that you are going to check what is already installed before changing anything.
+This is the first point at which you look at the user's machine. Everything up
+to now has been conversation.
+
+First work out which AI assistant you are running inside, because that decides
+where the skills must be saved:
+
+| Assistant | Where skills are saved |
+| --- | --- |
+| GitHub Copilot / VS Code | `.github/skills/<skill-name>/SKILL.md` in the project |
+| Claude Code | `.claude/skills/<skill-name>/SKILL.md` in the project |
+| Codex | `.nci-skills/<skill-name>/SKILL.md`, plus a pointer added to `AGENTS.md` |
+| Kiro or anything else | `.nci-skills/<skill-name>/SKILL.md` |
+
+If you cannot tell which assistant you are, do not guess. Ask the user, and
+offer the four options above in plain terms.
+
+Then look at the current folder and note whether it is empty, whether it
+contains source code, and whether it is a Git repository. Git is the system that
+tracks changes to files over time. Report this in one short sentence.
+
+Now tell the user that the skills you picked rely on some supporting programs,
+and that you are going to check what is already installed before changing
+anything.
 
 Work out what is needed. If the catalog entry for a skill lists a `requires`
 field, use that. Otherwise use this table:
@@ -505,14 +510,14 @@ After each install, run the version check again and report the confirmed result.
 If it fails, explain the likely cause in plain language and link to the official
 documentation. Do not retry the same command hoping for a different outcome.
 
-### Step 6 of 9 — Install the skills
+### Step 5 of 8 — Install the skills
 
 Ask permission before writing, naming the exact number of files and the exact
 folder. Then, for each chosen skill:
 
 1. Download it, using the same four-source order and the same caching rule from
    Step 2.
-2. Save it to the location determined in Step 1.
+2. Save it to the location determined in Step 4.
 3. If a file is already there, stop and ask. Show the user that a skill of that
    name already exists and offer to keep the existing one, replace it, or save
    the new one under a different name. Never overwrite silently.
@@ -526,7 +531,7 @@ you are doing this and why.
 
 Report each file saved as you go.
 
-### Step 7 of 9 — Build and run a hello world
+### Step 6 of 8 — Build and run a hello world
 
 Skip this step entirely if the user is not building an application, for example
 if they answered that this is a documentation or governance task, or that they
@@ -543,7 +548,7 @@ Explain the point of this step before doing it:
 
 Ask permission to create the files, naming how many and where.
 
-Build the smallest working application in the language chosen in Step 3, with
+Build the smallest working application in the language chosen in Step 1, with
 exactly two addresses:
 
 - A main address that returns a short greeting including the application name.
@@ -561,7 +566,7 @@ understand what it does. It must return, in machine-readable form:
 | `checkedAt` | The date and time the check ran |
 | `dependencies` | Each thing the application depends on, such as a database, and whether it could be reached |
 
-If the user answered in Step 3 that the application needs to store information,
+If the user answered in Step 1 that the application needs to store information,
 the database must appear in `dependencies` and must actually be checked. A health
 check that always says `ok` is worse than no health check at all, because it
 creates false confidence.
@@ -578,13 +583,13 @@ it was. It replied that it is healthy and that it can reach its database."
 Do not claim it works unless you have called it and seen the response.
 
 Do not deploy anything to the cloud in this step. That is offered separately in
-Step 9.
+Step 8.
 
 Record how long this step took.
 
-### Step 8 of 9 — Register the application
+### Step 7 of 8 — Register the application
 
-Skip this step if Step 7 was skipped, and say so.
+Skip this step if Step 6 was skipped, and say so.
 
 Explain why, plainly:
 
@@ -624,8 +629,8 @@ these fields:
 | `requiresSignIn` | From the question 1 follow-up: `true`, `false`, or `unknown` |
 | `dataSensitivity` | From question 5: `public`, `internal`, or `pii-phi` |
 | `createdDate` | Today |
-| `skillsUsed` | The skills installed in Step 6 |
-| `helloWorldElapsedMinutes` | Measured in Step 7 |
+| `skillsUsed` | The skills installed in Step 5 |
+| `helloWorldElapsedMinutes` | Measured in Step 6 |
 
 **Never put a password, key, token, or connection string in this file.** It is
 an inventory record, not a configuration file. It will be committed alongside
@@ -650,7 +655,7 @@ repository named `CBIIT/NCI-Skills-Registry`. Check whether it exists at
 Never invent a registry address, and never claim the application has been
 centrally registered when it has not.
 
-### Step 9 of 9 — Summarise and hand off
+### Step 8 of 8 — Summarise and hand off
 
 Give a plain-English summary with these six headings, in this order:
 
@@ -660,7 +665,7 @@ Give a plain-English summary with these six headings, in this order:
 3. **Where it went.** The exact folder, and one sentence on what that folder
    means for the assistant they are using.
 4. **What is running now.** Whether the hello world is running, what its two
-   addresses are, and what the health check reported. If Step 7 was skipped, say
+   addresses are, and what the health check reported. If Step 6 was skipped, say
    why.
 5. **How long it took.** The actual elapsed time, compared against the estimate
    you gave in Step 1. If it took materially longer, say what caused it. This is
@@ -686,7 +691,7 @@ not finish it.
 - [ ] No fabricated facts
 - [ ] Safe and policy-aligned
 - [ ] A time expectation was given in Step 1, before any work began
-- [ ] All nine steps were announced before starting and reported after finishing
+- [ ] All eight steps were announced before starting and reported after finishing
 - [ ] In test mode: nothing was downloaded, installed, written, or run
 - [ ] In test mode: every message was marked and every skipped action shown as
       `WOULD DO:`
@@ -742,7 +747,7 @@ not finish it.
   though it really happened.
 - Do not deploy anything to the cloud as part of this skill. Offer it as a
   separate decision at the end.
-- Do not build features beyond the hello world. Hand off at the end of Step 9.
+- Do not build features beyond the hello world. Hand off at the end of Step 8.
 
 ### Glossary
 
