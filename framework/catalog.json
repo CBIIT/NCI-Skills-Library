@@ -47,9 +47,9 @@
     {
       "name": "nci-startup",
       "title": "NCI Startup",
-      "path": "framework/nci_startup/SKILL.md",
+      "path": "framework/nci-startup/SKILL.md",
       "tier": "framework",
-      "category": "nci_startup",
+      "category": "nci-startup",
       "description": "Use this skill when you are beginning a piece of work at NCI and do not yet know which NCI skills apply. It helps technical staff who do not write code choose, download, and set up the right skills from the NCI Skills Library, check that their computer has the tools those skills need, and get a small working application running. Produces an installed set of skills, a tool readiness report, a running hello world with a health check, a registry entry recording the application, and a plain-English summary of what happened and what to do next.",
       "author": "<author-name/DOC>",
       "subjectMatterExpert": "<sme-name/DOC>",
@@ -68,8 +68,8 @@
         "You are partway through an implementation and just want help with the next",
         "You are trying to add or change a skill in the library itself. Use the skill"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/CBIIT/NCI-Skills-Library/main/framework/nci_startup/SKILL.md",
-      "apiUrl": "https://api.github.com/repos/CBIIT/NCI-Skills-Library/contents/framework/nci_startup/SKILL.md?ref=main",
+      "rawUrl": "https://raw.githubusercontent.com/CBIIT/NCI-Skills-Library/main/framework/nci-startup/SKILL.md",
+      "apiUrl": "https://api.github.com/repos/CBIIT/NCI-Skills-Library/contents/framework/nci-startup/SKILL.md?ref=main",
       "conformsToTemplate": false,
       "templateIssues": [
         "unfilled template placeholder in: author",

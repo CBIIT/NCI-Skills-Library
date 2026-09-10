@@ -21,7 +21,7 @@ Run these from the repository root. They need Node.js 18 or newer.
 | --- | --- | --- |
 | M1 Catalog builds | `node tools/build-catalog.mjs` | Exits 0; every skill file appears once |
 | M2 Catalog is current | `node tools/build-catalog.mjs --check` | Exits 0 |
-| M3 Template conformance | `node tools/lint-skills.mjs` | `framework/nci_startup/SKILL.md` reports no structural issues |
+| M3 Template conformance | `node tools/lint-skills.mjs` | `framework/nci-startup/SKILL.md` reports no structural issues |
 | M4 Anonymous access | `env -u GITHUB_TOKEN curl -sSI <catalog raw URL>` | HTTP 200 with no credentials present |
 | M5 Every link resolves | `curl -sSI` each `rawUrl` in `framework/catalog.json` | All HTTP 200 |
 
