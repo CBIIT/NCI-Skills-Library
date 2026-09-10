@@ -30,6 +30,10 @@ where to check on it.
 It tells you up front roughly how long all of this will take, and tells you at
 the end what it actually took.
 
+If you type `test` or `test-mode` as your first message, it will walk through the
+whole conversation without doing anything at all, so you can check that the
+wording makes sense before letting it touch a real project.
+
 You do not need to know what skills exist, what they are called, or where they
 live. You do not need to have downloaded anything in advance. You only need
 this file and an internet connection.
@@ -107,6 +111,8 @@ Do not use this skill when:
 - Internet access to `raw.githubusercontent.com` and `api.github.com`. If both
   are blocked, this skill still works using the built-in list in Step 2, just
   with an older set of skills.
+- Optionally, the word `test` or `test-mode` as the very first message, which
+  runs the whole conversation without doing anything.
 - Permission to save files, which will always be asked for before anything is
   written.
 
@@ -127,8 +133,8 @@ Return:
      it was put, how long it took, what happens next, and what is still missing.
 2. Assumptions, stated explicitly. For example: which AI assistant was detected,
    which answers were inferred rather than asked, whether the live catalog or
-   the built-in fallback list was used, and any registry field recorded as
-   unknown.
+   the built-in fallback list was used, any registry field recorded as unknown,
+   and whether the session was a test run in which nothing was actually done.
 3. Risks and dependencies, including any skill that was recommended but is still
    an unreviewed draft, any tool the user declined to install, any part of the
    NCI Skills Library that has no coverage for this situation, the fact that the
@@ -140,6 +146,49 @@ Return:
 Work through these nine steps in order. Announce each one before starting it.
 
 Note the elapsed time as you go. You will report the total in Step 9.
+
+### Step 0 — Check for test mode
+
+Before Step 1, check what the user's first message is.
+
+If it is `test`, `test-mode`, `test mode`, or `/test`, in any capitalisation,
+switch into **test mode** for the rest of the session. Otherwise carry on
+normally and do not mention test mode at all.
+
+Test mode exists so that someone can review the wording of this skill without
+anything actually happening to their computer.
+
+Confirm it in these words, or very close to them:
+
+> Test mode is on. I will walk through all nine steps and ask you every question
+> exactly as I normally would, but I will not do anything. Nothing will be
+> downloaded, installed, written, or run. Every action I would have taken will be
+> described instead. Nothing on your computer will change.
+
+**Rules for test mode. All of them are absolute.**
+
+- Take no action of any kind. No network requests, no downloads, no installs, no
+  files created or changed, no commands run, no application started, no Git
+  operations.
+- Where you would normally act, say what you would have done instead, on its own
+  line, beginning with `WOULD DO:`. For example:
+  `WOULD DO: save 1 file to .github/skills/cloud-one-github-actions-lambda-deployment/SKILL.md`
+- Begin every message with `[TEST MODE]` so that a transcript can never be
+  mistaken for a record of real work.
+- For Step 2, do not fetch anything. Use the built-in list and say that you are
+  using it because you are in test mode, not because the network failed.
+- Still ask for every permission you would normally ask for, in the same words.
+  This is the main thing being reviewed. When the user grants permission, say
+  `WOULD DO:` and carry on. Never actually do it.
+- Where a real result would normally appear, such as which tools are installed or
+  what the health check returned, use a clearly labelled example and say it is an
+  example. Write "for example, it might report that it is healthy", never "it
+  reported that it is healthy". Never present an invented result as a real one.
+- Still produce the full summary in Step 9, and end it with: "This was a test
+  run. Nothing was downloaded, installed, written, or run, and nothing on your
+  computer changed."
+- Test mode cannot be switched off part-way through. If the user asks you to do
+  it for real, tell them to start a fresh session without typing `test`.
 
 ### Step 1 of 9 — Understand your setup
 
@@ -253,14 +302,32 @@ no wrong answers, and that "I'm not sure" is always a valid choice.
 Ask **one at a time**. Skip any question you already know the answer to from
 Step 1, and say that you are skipping it and why.
 
-1. **What kind of work is this?**
+1. **Who is this for?**
+   This is the most important question, because it decides how much protection
+   the application needs.
+   (a) Just me. Nobody else will use it.
+   (b) A small, named group of people I could list by name.
+   (c) Anyone at NCI who wants it.
+   (d) The general public, on the open internet.
+   (e) I'm not sure.
+
+   Then, unless they answered (a), ask the follow-up: **will people need to sign
+   in to use it?** (a) Yes, with their NIH account. (b) Yes, some other way.
+   (c) No, anyone with the address can use it. (d) I'm not sure.
+
+   If the answer to the first part is (c) or (d) and the answer to the follow-up
+   is "no sign-in", say plainly: "That means anyone who finds the address can use
+   it. That may well be fine, but it is worth being deliberate about." Do not
+   refuse, and do not lecture. Note it for the summary.
+
+2. **What kind of work is this?**
    (a) Building something new from scratch.
    (b) Changing or reviewing something that already exists.
    (c) Not a software build at all, for example documentation, planning, or a
    governance review.
    (d) I'm not sure.
 
-2. **Does it need to remember information between uses?**
+3. **Does it need to remember information between uses?**
    (a) No. It shows the same fixed content every time, like a printed leaflet.
    (b) It looks things up but never changes them, like a search page over a
    fixed list.
@@ -269,7 +336,7 @@ Step 1, and say that you are skipping it and why.
    (d) It mainly handles uploaded files or documents.
    (e) I'm not sure.
 
-3. **Where will this live once it is finished?**
+4. **Where will this live once it is finished?**
    (a) NCI's cloud environment, called Cloud One.
    (b) In a container, which is a self-contained package that runs the same way
    on any machine.
@@ -277,7 +344,7 @@ Step 1, and say that you are skipping it and why.
    (d) Only on my own computer.
    (e) I'm not sure.
 
-4. **What kind of information will it touch?**
+5. **What kind of information will it touch?**
    (a) Only information that is already public.
    (b) Internal NCI information that is not public but is not personal.
    (c) Personal or health information about identifiable people. This is often
@@ -285,11 +352,11 @@ Step 1, and say that you are skipping it and why.
    protected health information.
    (d) I'm not sure.
 
-5. **Do you already know what it should be built in?**
+6. **Do you already know what it should be built in?**
    (a) Python. (b) JavaScript or TypeScript. (c) Something else.
    (d) No, and I would like a recommendation.
 
-6. **Will the code live in GitHub, and should it publish itself automatically
+7. **Will the code live in GitHub, and should it publish itself automatically
    when changed?**
    GitHub is where NCI stores and tracks code. Publishing automatically is
    usually called CI/CD, short for continuous integration and continuous
@@ -297,18 +364,17 @@ Step 1, and say that you are skipping it and why.
    (a) Yes to both. (b) GitHub yes, publish manually. (c) Neither.
    (d) I'm not sure.
 
-7. **Who will use it, and will they need to sign in?**
-   (a) Only me. (b) NCI staff, signing in with their NIH account.
-   (c) Anyone on the public internet. (d) I'm not sure.
-
 8. **What would you like to happen in this session?**
    (a) Start building. (b) Review or understand something that exists.
    (c) Check security or third-party components. (d) Write documentation.
    (e) Plan the work before doing any of it.
 
 When the user answers "I'm not sure", ask one simpler follow-up rather than
-guessing. For question 2, a good follow-up is: "If you closed the application
+guessing. For question 3, a good follow-up is: "If you closed the application
 and reopened it tomorrow, should it still show what someone typed in today?"
+For question 1, a good follow-up is: "Could you write down the names of everyone
+who should be able to open it? If yes, it is a small group. If not, it is
+everyone at NCI or the public."
 
 Before moving on, read the answers back in three or four plain sentences and ask
 the user to confirm you have understood correctly.
@@ -320,19 +386,19 @@ Tell the user you are matching their answers against the library.
 Apply these rules. A skill can be selected by more than one rule; select it
 once.
 
-- Q3 is Cloud One, **or** Q3 is "I'm not sure" and Q6 is "yes to both" →
+- Q4 is Cloud One, **or** Q4 is "I'm not sure" and Q7 is "yes to both" →
   `cloud-one-github-actions-lambda-deployment`.
-- Q1 is "changing something that exists" → `codebase-orientation`.
+- Q2 is "changing something that exists" → `codebase-orientation`.
 - Q8 is "review or understand" → `code-review`, and `branch-code-review` if the
   user is reviewing one specific set of proposed changes.
-- Q8 is "check security", **or** Q4 is personal or health information →
-  `dependabot-report` and `code-scanning-report`.
-- Q3 is a container → also `twistlock-nci`.
+- Q8 is "check security", **or** Q5 is personal or health information, **or** Q1
+  is the general public → `dependabot-report` and `code-scanning-report`.
+- Q4 is a container → also `twistlock-nci`.
 - Q8 is "plan the work", and the system is large or already exists →
   `c4-analysis`, and `ddd-analysis` if the work is about business rules rather
   than infrastructure.
 - Q8 is "write documentation" → `implementation-report`.
-- Q1 is "not a software build" and the work is coordination or tracking →
+- Q2 is "not a software build" and the work is coordination or tracking →
   `cws-pm`.
 
 Ordering and honesty rules:
@@ -348,8 +414,9 @@ Ordering and honesty rules:
 
 **Gaps you must report.** The library currently has empty placeholder folders
 for security and governance. If the user answered that they will handle personal
-or health information (Q4c), or that people will enter and change stored
-information (Q2c), tell them:
+or health information (Q5c), that people will enter and change stored
+information (Q3c), or that the application is open to the general public with no
+sign-in (Q1d), tell them:
 
 > The NCI Skills Library does not yet have a reviewed skill covering this. That
 > is a gap in the library, not something you have done wrong. You can request
@@ -538,8 +605,8 @@ the final summary.
 | Has an information system security officer been assigned? | So security questions have an owner |
 
 Everything else you already know: the repository address, the health check
-address, how sensitive the data is from question 4, which skills were used, and
-today's date.
+address, who the application is for and whether it requires a sign-in, how
+sensitive the data is from question 5, which skills were used, and today's date.
 
 Write all of this to `app-registry.json` in the top level of the project. Record
 these fields:
@@ -551,9 +618,11 @@ these fields:
 | `owner`, `ownerOffice`, `contactEmail` | Asked above |
 | `securityOfficer` | Asked above, or `unknown` |
 | `repository` | The Git remote address, or `unknown` if not in a repository |
-| `cloudOneTier`, `stackName` | From question 3, or `not yet deployed` |
+| `cloudOneTier`, `stackName` | From question 4, or `not yet deployed` |
 | `healthCheckUrl` | The local address for now, updated on deployment |
-| `dataSensitivity` | From question 4: `public`, `internal`, or `pii-phi` |
+| `audience` | From question 1: `self`, `named-group`, `nci-wide`, or `public` |
+| `requiresSignIn` | From the question 1 follow-up: `true`, `false`, or `unknown` |
+| `dataSensitivity` | From question 5: `public`, `internal`, or `pii-phi` |
 | `createdDate` | Today |
 | `skillsUsed` | The skills installed in Step 6 |
 | `helloWorldElapsedMinutes` | Measured in Step 7 |
@@ -618,6 +687,10 @@ not finish it.
 - [ ] Safe and policy-aligned
 - [ ] A time expectation was given in Step 1, before any work began
 - [ ] All nine steps were announced before starting and reported after finishing
+- [ ] In test mode: nothing was downloaded, installed, written, or run
+- [ ] In test mode: every message was marked and every skipped action shown as
+      `WOULD DO:`
+- [ ] In test mode: no invented result was presented as a real one
 - [ ] No code, JSON, or YAML was shown to the user, other than commands offered
       for approval
 - [ ] Every acronym was defined the first time it appeared
@@ -665,6 +738,8 @@ not finish it.
 - Never put credentials of any kind in `app-registry.json`.
 - Never claim an application has been registered centrally, deployed, or is
   running unless you have confirmed it yourself.
+- In test mode, never take any action, and never describe a simulated result as
+  though it really happened.
 - Do not deploy anything to the cloud as part of this skill. Offer it as a
   separate decision at the end.
 - Do not build features beyond the hello world. Hand off at the end of Step 9.
