@@ -47,7 +47,7 @@ Required questions, in order:
 
 1. Is this a fresh repo or an existing project?
 2. What kind of app should we build: web app, API, CLI, script, or library?
-3. Which language or framework do you want: Python, Node.js, .NET, Java, Go, or another option?
+3. Which language do you want: Python, Node.js, .NET, Java, Go, or another option? For a Python Hello World web app, use Flask automatically; do not ask the user to choose a Python framework.
 4. Should the app run locally only or target AWS Lambda / a managed-service environment?
 5. What is the project name and desired working directory?
 

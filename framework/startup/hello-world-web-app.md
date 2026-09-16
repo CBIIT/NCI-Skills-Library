@@ -36,7 +36,7 @@ This skill does not yet target:
 ## Inputs
 
 - app name
-- desired runtime and framework
+- desired runtime or language
 - local or AWS Lambda target
 - project directory
 - whether the repo is fresh or existing
@@ -58,12 +58,13 @@ Return:
 - Do not invent production settings or cloud config.
 - If the chosen runtime is not installed, tell the user before continuing.
 - If the user chooses Python and Python is not installed, install it first or ask for permission to install it.
+- For a Python Hello World web app, use Flask automatically. Do not ask the user to choose a Python framework.
 - Keep the implementation small and intentionally minimal.
 - Do not over-engineer beyond a hello-world baseline.
 
 ## Workflow
 
-1. Confirm the app name, language, and target environment.
+1. Confirm the app name, language, and target environment. If the language is Python, select Flask automatically.
 2. Check whether the selected runtime is installed.
 3. If a required runtime is missing, tell the user and offer installation before continuing.
 4. Create the minimal web app structure.
