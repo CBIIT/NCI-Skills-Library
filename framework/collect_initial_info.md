@@ -39,10 +39,10 @@ Optional follow-up questions only if needed:
 
 Then do this:
 
-- if the user selected a web app, invoke the hello-world-web-app skill to create the minimal app skeleton
+- if the user selected a web app, invoke the hello-world-web-app skill in [startup/hello-world-web-app.md](startup/hello-world-web-app.md) to create the minimal app skeleton
 - build a hello world app locally
 - verify it runs successfully
-- register it with the NCI Skills Registry
+- register it with the NCI Skills Registry using [startup/nci-skill-registration.md](startup/nci-skill-registration.md)
 - if cloud deployment was selected, prepare the AWS dev environment and deploy the minimal app there
 
 Only support local execution and AWS Lambda / managed-service environments in this phase.

@@ -41,6 +41,7 @@ Do not ask about ServiceNow, Snowflake, or Power Platform yet.
 
 See also:
 
-- [NCI Skill Registration](cicd/nci-skill-registration.md)
+- [NCI Skill Registration](startup/nci-skill-registration.md)
+- [Hello World Web App](startup/hello-world-web-app.md)
 - [NCI-Skills-Library](https://github.com/CBIIT/NCI-Skills-Library)
 - [NCI Skills Registry](https://github.com/CBIIT/NCI-Skills-Registry)
