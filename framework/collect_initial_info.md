@@ -48,7 +48,7 @@ Required questions, in order:
 1. Is this a fresh repo or an existing project?
 2. What is the name of the project? This is an open-ended question. Use the project name as the page name and derive a repository-safe `Page-Name-With-Dashes` form when needed.
 3. What is the name of the author? This is an open-ended question. Use the author or GitHub username from the current user, authenticated context, or workspace when it can be determined. If it cannot be determined, ask this question before continuing.
-4. What kind of application and language should we build? Present these choices: web app with Python, web app with Node.js, API with Python, CLI with Python, script with Python, library with Python, or I don't know. For a Python web app, use Flask automatically; do not ask the user to choose a Python framework. Do not offer Go or .NET in this initial flow.
+4. What kind of application and language should we build? Present these choices: web app with Python, web app with Node.js, static site for GitHub Pages, API with Python, CLI with Python, script with Python, library with Python, or I don't know. For a Python web app, use Flask automatically; do not ask the user to choose a Python framework. Do not offer Go or .NET in this initial flow.
 5. Where should the app run? Present these choices: local only, GitHub Pages, or AWS Lambda / managed service.
 
 If the project is not fresh, the AI should inspect the existing project context and use that information to answer the remaining questions when possible instead of asking for redundant details.
