@@ -1,6 +1,6 @@
 ---
 name: nci-skill-registration
-description: Use this skill when an NCI skill needs to register itself with the NCI Skills Registry or update its registration after a major change. It helps skill owners and agents prepare a validated registry change. Produces a registry update or a reviewable pull request request.
+description: Use this skill when an NCI skill needs to register itself with the NCI Skills Registry or update its registration after a major change. It helps skill owners and agents prepare a validated registry change. Produces a registry update or a reviewable pull request.
 author: CBIIT
 subject_matter_expert: CBIIT
 Language: Markdown, JSON
