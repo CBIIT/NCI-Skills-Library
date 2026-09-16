@@ -47,7 +47,7 @@ Required questions, in order:
 
 1. Is this a fresh repo or an existing project?
 2. What is the name of the project? This is an open-ended question. Use the project name as the page name and derive a repository-safe `Page-Name-With-Dashes` form when needed.
-3. What is the name of the author? This is an open-ended question. Use the author or GitHub username from the current user, authenticated context, or workspace when it can be determined. If it cannot be determined, ask this question before continuing.
+3. What is the name of the author? This is an open-ended question. Use the author or GitHub username from the current user, authenticated context, or workspace when it can be determined, and confirm the display name from the public GitHub profile when possible. If it cannot be determined, ask this question before continuing. For SSO, also ask the author to provide and confirm their NIH email address; never infer it from GitHub.
 4. What kind of application and language should we build? Present these choices: web app with Python, web app with Node.js, static site for GitHub Pages, API with Python, CLI with Python, script with Python, library with Python, or I don't know. For a Python web app, use Flask automatically; do not ask the user to choose a Python framework. Do not offer Go or .NET in this initial flow.
 5. Where should the app run? Present these choices: local only, GitHub Pages, or AWS Lambda / managed service.
 
