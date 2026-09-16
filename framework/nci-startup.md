@@ -1,6 +1,6 @@
 ---
 name: nci-startup
-description: Minimal bootstrap for fresh AI-assisted NCI work. This is the first file to load. Type "start" to begin the NCI bootstrap flow.
+description: Minimal bootstrap for fresh AI-assisted NCI work. Loading this file begins the NCI bootstrap flow; "start" is an optional explicit trigger.
 author: CBIIT
 subject_matter_expert: CBIIT
 Language: Markdown
@@ -10,9 +10,9 @@ Framework: NCI Skills Library
 
 # NCI Startup
 
-Load this file first. Then type:
+Load this file first. Loading it is sufficient to begin the bootstrap flow. Do not wait for a command. If the interface asks for a response, either a blank response or `start` means begin immediately.
 
-start
+The agent should begin immediately after this file is loaded, whether the user types `start`, submits a blank response, or types nothing further.
 
 ## First Step: Load Bootstrap Files
 
