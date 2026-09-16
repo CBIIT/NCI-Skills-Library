@@ -15,7 +15,9 @@ First say to the user:
 
 Then say:
 
-"We will ask 5 required questions and up to 2 optional follow-up questions if needed."
+"We will ask 5 required questions, one at a time, and up to 2 optional follow-up questions if needed. I will wait for your answer before asking the next question."
+
+Ask exactly one question per message. Do not display the remaining questions as a batch or pre-fill answers for them. After each response, confirm or clarify that answer, then ask the next numbered question.
 
 Use a numbered multiple-choice format as the default for every question. Some IDEs support clickable buttons, but the startup flow must still work if the user answers by typing a number or choosing a button label. The system should always present numbered options first and accept either numeric selection or the matching option text.
 
