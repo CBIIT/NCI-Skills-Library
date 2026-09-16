@@ -30,6 +30,8 @@ Do not use this skill when:
 - Skill name and description.
 - Source repository URL.
 - Required owner.
+- NCI Owner.
+- NCI DOC (division, office, or center).
 - Creation date and last-updated date in ISO `YYYY-MM-DD` format.
 - Current skill version or source revision, when available.
 - Deployment status: `local-only`, `dev`, `qa`, `stage`, or `production`.
@@ -42,8 +44,11 @@ Use these questions to bootstrap the first registry entry for a new NCI app or s
 
 ### Core registration questions
 - What is the app or skill name and the stable identifier you want to register?
-- What repository contains the source code and what is its URL?
-- Who owns the app or skill from an NCI team or service perspective?
+- What is the NCI Owner for this app or skill?
+- What is the NCI DOC (division, office, or center) associated with it?
+- Unless you provide a different repository, use `https://github.com/CBIIT/<Application-Name>` as the source repository URL, replacing `<Application-Name>` with the application name in repository-safe form.
+- If the GitHub username or organization cannot be inferred from the repository URL or the authenticated GitHub context, ask for the GitHub username before continuing.
+- Do not ask for a Security Officer at this stage.
 - What is the purpose of the app in one or two sentences?
 - Is this a new registration or an update to an existing registry entry?
 - What is the current version or source revision?

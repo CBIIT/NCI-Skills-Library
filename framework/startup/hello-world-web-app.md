@@ -77,7 +77,9 @@ Return:
 
 ## Page Design Requirements
 
-The generated page must look simple, professional, and NCI-aligned. It should include:
+The generated page must look complete, polished, professional, and NCI-aligned on first render. Do not leave the page unstyled, do not rely on browser-default typography or spacing, and do not show template placeholders such as `{{ program_name }}` to the user. Render every value with a real value or a clear fallback before opening the page.
+
+It should include:
 
 - a compact header bar with the official NCI logo on the left
 - the app/program name or application label immediately to the right of the logo
@@ -90,7 +92,9 @@ The generated page must look simple, professional, and NCI-aligned. It should in
   - Version or status
   - Environment label such as Local or Dev
 
-Use neutral colors, clear spacing, and a tidy layout. Avoid heavy branding, excessive animation, or complex styling.
+Use a restrained NCI-inspired palette, a readable sans-serif font stack, a centered responsive content shell, generous but consistent spacing, clear metadata grouping, and a footer that wraps cleanly on small screens. Include a complete stylesheet with base styles, layout styles, typography, links, metadata, header, footer, and responsive rules. Avoid heavy branding, excessive animation, or complex styling.
+
+Before reporting success, verify the rendered page in a browser or HTTP response and confirm that it has no unresolved template placeholders, no default unstyled layout, and no horizontal overflow at a narrow viewport.
 
 ## Header Requirement
 
@@ -234,7 +238,8 @@ If the user did not supply one of these, use a sensible default and note it in t
 Use the simplest reliable web app for local execution, typically:
 
 - Flask for a lightweight web app
-- FastAPI if a more modern API-first baseline is preferred
+
+For this Hello World web app, Flask is the default and should be used without asking the user to choose another Python framework.
 
 ### Node.js
 
