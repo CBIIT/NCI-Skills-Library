@@ -68,10 +68,115 @@ Return:
 3. If a required runtime is missing, tell the user and offer installation before continuing.
 4. Create the minimal web app structure.
 5. Use the simplest working implementation for the selected stack.
-6. Build a tiny landing page or response that clearly says Hello, World.
-7. Add a simple run command and a smoke-test verification step.
-8. Summarize how to run it locally and what to do next.
-9. If the app is targeted for AWS Lambda or managed services, keep the code compatible with a later deploy step without making the initial app overly complex.
+6. Build a polished but intentionally simple hello-world landing page with a clean NCI-inspired layout.
+7. Include standard metadata variables such as program name, author, and published date in the page.
+8. Add a simple run command and a smoke-test verification step.
+9. Summarize how to run it locally and what to do next.
+10. If the app is targeted for AWS Lambda or managed services, keep the code compatible with a later deploy step without making the initial app overly complex.
+
+## Page Design Requirements
+
+The generated page must look simple, professional, and NCI-aligned. It should include:
+
+- a compact header bar with the app/program name on the left
+- a simple NCI-style title or application label
+- a clean central message area that says Hello, World
+- a short summary line or subtitle describing the app
+- a footer with basic metadata, including at minimum:
+  - Program name
+  - Author
+  - Date published
+  - Version or status
+  - Environment label such as Local or Dev
+
+Use neutral colors, clear spacing, and a tidy layout. Avoid heavy branding, excessive animation, or complex styling.
+
+## Footer Requirement
+
+The footer should closely match the official NCI government footer pattern shown in the standard design system, using:
+
+- a solid dark blue background
+- white text for all links and labels
+- evenly spaced horizontal navigation links
+- a centered NIH tagline line such as: "NIH ... Turning Discovery Into Health®"
+- concise links such as Home, Policies, Accessibility, Viewing Files, FOIA, HHS, NIH, NCI, and USA.gov
+
+A simple HTML/CSS structure should look like this:
+
+```html
+<footer class="nci-footer">
+  <div class="nci-footer__links">
+    <a href="#">Home</a>
+    <span>|</span>
+    <a href="#">Policies</a>
+    <span>|</span>
+    <a href="#">HHS Vulnerability Disclosure</a>
+    <span>|</span>
+    <a href="#">Accessibility</a>
+    <span>|</span>
+    <a href="#">Viewing Files</a>
+    <span>|</span>
+    <a href="#">FOIA</a>
+  </div>
+  <div class="nci-footer__orgs">
+    <a href="#">U.S. Department of Health and Human Services</a>
+    <span>|</span>
+    <a href="#">National Institutes of Health</a>
+    <span>|</span>
+    <a href="#">National Cancer Institute</a>
+    <span>|</span>
+    <a href="#">USA.gov</a>
+  </div>
+  <div class="nci-footer__tagline">NIH ... Turning Discovery Into Health®</div>
+</footer>
+```
+
+```css
+.nci-footer {
+  background: #0f6a9c;
+  color: #ffffff;
+  text-align: center;
+  padding: 1.5rem 2rem 2rem;
+  font-family: Arial, sans-serif;
+}
+
+.nci-footer__links,
+.nci-footer__orgs {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.nci-footer a {
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.nci-footer__tagline {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+```
+
+Keep the footer minimal and readable; do not add heavy decoration or custom branding beyond the official style pattern.
+
+## Metadata Variables
+
+Use these standard variables in the rendered page when available:
+
+- `program_name`
+- `author_name`
+- `published_date`
+- `version`
+- `environment`
+- `description`
+
+If the user did not supply one of these, use a sensible default and note it in the generated summary.
 
 ## Default Implementation Guidance
 
@@ -100,15 +205,19 @@ Use the simplest minimal framework consistent with the user's choice and the sup
 
 ## Example Result
 
-The generated app should produce a page or response like:
+The generated app should produce a polished page with a layout similar to:
 
-Hello, World
+- Header: Program Name
+- Main section: Hello, World
+- Subtitle: A minimal NCI web application starter
+- Footer: Author | Published Date | Version | Environment
 
-and include:
+The page should include:
 
 - a local run command
 - a quick verification step
 - a README snippet with usage notes
+- standard metadata variables visible on the page
 
 ## Startup Invocation
 

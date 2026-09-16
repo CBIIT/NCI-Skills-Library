@@ -14,11 +14,19 @@ Then say:
 
 When the AI environment supports it, present each multiple-choice question as clickable buttons rather than free-form text. This makes the startup flow faster and easier for the user.
 
-Before proceeding with any implementation, the system should check the user's environment and required identities. The user must have a GitHub account available. If they do not, the system must tell them up front: "You need a GitHub account before we can register this app with the NCI Skills Registry. Please sign in or create a GitHub account, then continue."
+Before any installation starts, the system must check the environment and notify the user about required dependencies. The first step is a dependency check, not installation.
 
-The system should also attempt to sign the user in to GitHub early in the flow so that the app can be registered with the NCI Skills Registry as early as possible in the process.
+The tool must explicitly check whether the following are present: Python, Git, GitHub CLI, and any runtime or CLI tooling required by the selected stack. The system should also verify whether the user has a GitHub account and whether GitHub sign-in is available.
 
-Before proceeding with any implementation, the tool should explicitly check whether the selected runtime is installed. If the user chooses Python and Python is not installed on the machine, the system must tell the user up front: "Python is not installed on this machine. We can install it for you before continuing with the Hello, World app."
+If required tools are missing, the system must tell the user exactly what is missing and what it will install before proceeding. Example notification:
+
+"Before we begin building, I need to check your environment. We found that the following dependencies are missing: Python, Git, and GitHub CLI. We will install these first, then continue with the Hello, World app and registry setup."
+
+If the user chooses Python and Python is not installed on the machine, the system must tell the user up front: "Python is not installed on this machine. We can install it for you before continuing with the Hello, World app."
+
+If the user does not have a GitHub account, the system must tell them up front: "You need a GitHub account before we can register this app with the NCI Skills Registry. Please sign in or create a GitHub account, then continue."
+
+Only after this dependency summary is shown and confirmed should the system begin installation or implementation.
 
 Then proceed with Question 1.
 
