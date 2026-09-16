@@ -26,6 +26,8 @@ The agent should:
 
 Use the detailed questionnaire in [collect_initial_info.md](collect_initial_info.md).
 
+If the user chooses a web app during startup, invoke the hello-world-web-app skill to create the minimal local baseline. After that baseline is verified, continue with NCI Skills Registry registration and optional AWS dev deployment if needed.
+
 ## Repository Access Rule
 
 This bootstrap must operate in environments without Git or GitHub CLI installed. The AI should access the required repository files directly from the GitHub repository source, not by cloning, fetching, or invoking `git` or `gh` commands.
