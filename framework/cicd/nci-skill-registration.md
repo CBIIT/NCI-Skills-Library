@@ -36,6 +36,41 @@ Do not use this skill when:
 - URL for each deployed environment; local-only skills must not claim deployed URLs.
 - Optional major-change summary and release notes.
 
+## Starter Questions for the First Registration
+
+Use these questions to bootstrap the first registry entry for a new NCI app or skill. Keep them short and practical.
+
+### Core registration questions
+- What is the app or skill name and the stable identifier you want to register?
+- What repository contains the source code and what is its URL?
+- Who owns the app or skill from an NCI team or service perspective?
+- What is the purpose of the app in one or two sentences?
+- Is this a new registration or an update to an existing registry entry?
+- What is the current version or source revision?
+- What is the creation date and the last-updated date?
+- What deployment status applies: `local-only`, `dev`, `qa`, `stage`, or `production`?
+- Which environment URLs exist today, if any?
+- What changed materially since the last registration, if this is an update?
+
+### AWS Lambda / managed-service questions
+- Is this app deployed as an AWS Lambda or in a managed-service pattern such as API Gateway, EventBridge, SQS, Step Functions, or ECS?
+- Which AWS account, region, and environment are in use?
+- What is the service name, function name, or runtime entry point?
+- Is the deployment driven by SAM, Terraform, CDK, or GitHub Actions?
+- What is the public or internal endpoint URL for each deployed environment?
+- Are there any non-production environments for `dev`, `qa`, or `stage` that should be registered?
+- Does the app rely on AWS resources that should be listed as part of its deployment context?
+- Are there any secrets, credentials, or restricted data paths that should not be recorded in the registry?
+
+### Explicitly unsupported environments for now
+- Do not ask about or infer support for ServiceNow, Snowflake, or Power Platform in the initial bootstrap flow.
+- If a user requests one of those environments, acknowledge it as future support and continue only with the supported local or AWS Lambda / managed-service path unless the user explicitly asks for a future-state design.
+
+### Decision questions
+- Is the app intended to be local-only, or is it already deployed to an environment?
+- Does the app have a material change since the last registry version?
+- Are there any blockers or missing metadata that should be documented before submission?
+
 ## Output
 Return:
 1. A validated registry entry or the minimal update required for the existing entry.
