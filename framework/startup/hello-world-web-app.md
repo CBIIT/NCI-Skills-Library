@@ -78,8 +78,8 @@ Return:
 
 The generated page must look simple, professional, and NCI-aligned. It should include:
 
-- a compact header bar with the app/program name on the left
-- a simple NCI-style title or application label
+- a compact header bar with the official NCI logo on the left
+- the app/program name or application label immediately to the right of the logo
 - a clean central message area that says Hello, World
 - a short summary line or subtitle describing the app
 - a footer with basic metadata, including at minimum:
@@ -90,6 +90,54 @@ The generated page must look simple, professional, and NCI-aligned. It should in
   - Environment label such as Local or Dev
 
 Use neutral colors, clear spacing, and a tidy layout. Avoid heavy branding, excessive animation, or complex styling.
+
+## Header Requirement
+
+The header should use the official NCI logo and follow the NCI Design System pattern. The logo should use the approved logo asset and should link to the NCI homepage or a relevant landing page.
+
+Use the official NCI logo URL:
+
+`https://www.cancer.gov/profiles/custom/cgov_site/themes/custom/cgov/static/images/design-elements/logos/nci-logo-full.svg`
+
+A simple HTML/CSS structure should look like this:
+
+```html
+<header class="nci-header">
+  <div class="nci-header__brand">
+    <a href="https://www.cancer.gov" aria-label="National Cancer Institute home page">
+      <img src="https://www.cancer.gov/profiles/custom/cgov_site/themes/custom/cgov/static/images/design-elements/logos/nci-logo-full.svg" alt="National Cancer Institute" />
+    </a>
+  </div>
+  <div class="nci-header__title">
+    <span>Program Name</span>
+  </div>
+</header>
+```
+
+```css
+.nci-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border-bottom: 1px solid #dfe3e8;
+  padding: 0.75rem 1.5rem;
+}
+
+.nci-header__brand img {
+  display: block;
+  height: 48px;
+  width: auto;
+}
+
+.nci-header__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+```
+
+This keeps the header simple, professional, and aligned with the NCI design system while preserving the app name as the main label.
 
 ## Footer Requirement
 
