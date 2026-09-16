@@ -2,7 +2,12 @@
 
 Load this file after the startup bootstrap when you need the minimal questionnaire.
 
-Before asking these questions, read the required repository files directly from the GitHub repository by direct file access. Do not require `git`, `gh`, or other repo tooling to be installed in the current environment.
+This questionnaire is loaded directly from the GitHub repository before any local setup. Before checking dependencies, configuring GitHub CLI, requesting sign-in, installing tools, or asking these questions, read the required files from these raw URLs:
+
+- https://raw.githubusercontent.com/CBIIT/NCI-Skills-Library/main/framework/nci-startup.md
+- https://raw.githubusercontent.com/CBIIT/NCI-Skills-Library/main/framework/collect_initial_info.md
+
+Do not run `gh`, `git`, GitHub authentication, or any installation command before the direct URL reads are complete. Do not require `git`, `gh`, or other repo tooling to be installed in the current environment.
 
 First say to the user:
 
