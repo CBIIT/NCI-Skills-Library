@@ -31,7 +31,8 @@ The agent should:
 - create a minimal hello world app
 - verify it runs locally
 - register it with the NCI Skills Registry
-- if cloud deployment was selected, prepare the AWS dev environment and deploy the minimal app there
+- if GitHub Pages was selected, prepare the repository and deploy the static site there
+- if AWS deployment was selected, prepare the AWS dev environment and deploy the minimal app there
 
 Use the detailed questionnaire in [collect_initial_info.md](collect_initial_info.md).
 
@@ -46,6 +47,7 @@ This bootstrap must operate in environments without Git or GitHub CLI installed.
 Keep the initial support set limited to:
 
 - local execution
+- GitHub Pages
 - AWS Lambda / managed-service environments
 
 Do not ask about ServiceNow, Snowflake, or Power Platform yet.

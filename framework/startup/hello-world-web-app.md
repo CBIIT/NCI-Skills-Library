@@ -4,7 +4,7 @@ description: Creates a minimal, compliant hello-world web application in a suppo
 author: CBIIT
 subject_matter_expert: CBIIT
 Language: Markdown, Python, JavaScript, HTML
-Framework: Flask, FastAPI, Express, Node.js, AWS Lambda
+Framework: Flask, Express, Node.js, AWS Lambda
 ---
 
 # Hello World Web App Skill
@@ -25,6 +25,7 @@ Use this skill when the user asks for:
 This skill supports:
 
 - local web app execution
+- GitHub Pages static-site deployment
 - AWS Lambda / managed-service deployment patterns for later follow-on work
 
 This skill does not yet target:
@@ -37,8 +38,8 @@ This skill does not yet target:
 
 - app name
 - desired runtime or language
-- local or AWS Lambda target
-- project directory
+- GitHub Pages, local, or AWS target
+- project directory derived from the project name
 - whether the repo is fresh or existing
 - optional NCI constraints or security notes
 
@@ -72,8 +73,10 @@ Return:
 6. Build a polished but intentionally simple hello-world landing page with a clean NCI-inspired layout.
 7. Include standard metadata variables such as program name, author, and published date in the page.
 8. Add a simple run command and a smoke-test verification step.
-9. Summarize how to run it locally and what to do next.
-10. If the app is targeted for AWS Lambda or managed services, keep the code compatible with a later deploy step without making the initial app overly complex.
+9. Serve the generated page through a local HTTP server and open the HTTP URL for verification. Never verify the app by opening the HTML file directly with `file://`.
+10. Summarize how to run it locally and what to do next.
+11. If the app is targeted for GitHub Pages, keep the generated site static and prepare the repository for a GitHub Pages deployment.
+12. If the app is targeted for AWS Lambda or managed services, keep the code compatible with a later deploy step without making the initial app overly complex.
 
 ## Page Design Requirements
 
@@ -94,7 +97,7 @@ It should include:
 
 Use a restrained NCI-inspired palette, a readable sans-serif font stack, a centered responsive content shell, generous but consistent spacing, clear metadata grouping, and a footer that wraps cleanly on small screens. Include a complete stylesheet with base styles, layout styles, typography, links, metadata, header, footer, and responsive rules. Avoid heavy branding, excessive animation, or complex styling.
 
-Before reporting success, verify the rendered page in a browser or HTTP response and confirm that it has no unresolved template placeholders, no default unstyled layout, and no horizontal overflow at a narrow viewport.
+Before reporting success, start the appropriate local HTTP server, load the page from its `http://localhost` URL in a browser or HTTP response, and confirm that it has no unresolved template placeholders, no default unstyled layout, and no horizontal overflow at a narrow viewport. Never report success based only on opening a local file.
 
 ## Header Requirement
 
@@ -240,6 +243,8 @@ Use the simplest reliable web app for local execution, typically:
 - Flask for a lightweight web app
 
 For this Hello World web app, Flask is the default and should be used without asking the user to choose another Python framework.
+
+When GitHub Pages is selected, use a static HTML/CSS/JavaScript output and verify it locally with an HTTP server before deployment.
 
 ### Node.js
 

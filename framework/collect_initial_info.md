@@ -19,7 +19,7 @@ Then say:
 
 Ask exactly one question per message. Do not display the remaining questions as a batch or pre-fill answers for them. After each response, confirm or clarify that answer, then ask the next numbered question.
 
-Use a numbered multiple-choice format as the default for every question. Some IDEs support clickable buttons, but the startup flow must still work if the user answers by typing a number or choosing a button label. The system should always present numbered options first and accept either numeric selection or the matching option text.
+Use a numbered multiple-choice format for choice questions. Open-ended questions do not need numbered options. Some IDEs support clickable buttons, but the startup flow must still work if the user answers by typing a number or choosing a button label. The system should always present numbered options first for choice questions and accept either numeric selection or the matching option text.
 
 Example format:
 
@@ -46,10 +46,10 @@ Then proceed with Question 1.
 Required questions, in order:
 
 1. Is this a fresh repo or an existing project?
-2. What kind of app should we build: web app, API, CLI, script, or library?
-3. Which language do you want: Python, Node.js, .NET, Java, Go, or another option? For a Python Hello World web app, use Flask automatically; do not ask the user to choose a Python framework.
-4. Should the app run locally only or target AWS Lambda / a managed-service environment?
-5. What is the project name and desired working directory?
+2. What is the name of the project? This is an open-ended question. Use the project name as the page name and derive a repository-safe `Page-Name-With-Dashes` form when needed.
+3. What is the name of the author? This is an open-ended question. Use the author or GitHub username from the current user, authenticated context, or workspace when it can be determined. If it cannot be determined, ask this question before continuing.
+4. What kind of application and language should we build? Present these choices: web app with Python, web app with Node.js, API with Python, CLI with Python, script with Python, library with Python, or I don't know. For a Python web app, use Flask automatically; do not ask the user to choose a Python framework. Do not offer Go or .NET in this initial flow.
+5. Where should the app run? Present these choices: local only, GitHub Pages, AWS Lambda, or another AWS managed service.
 
 If the project is not fresh, the AI should inspect the existing project context and use that information to answer the remaining questions when possible instead of asking for redundant details.
 
@@ -64,7 +64,8 @@ Then do this:
 - build a hello world app locally
 - verify it runs successfully
 - register it with the NCI Skills Registry using [startup/nci-skill-registration.md](startup/nci-skill-registration.md)
-- if cloud deployment was selected, prepare the AWS dev environment and deploy the minimal app there
+- if GitHub Pages was selected, prepare the repository for GitHub Pages and deploy the static site there
+- if AWS deployment was selected, prepare the AWS dev environment and deploy the minimal app there
 
-Only support local execution and AWS Lambda / managed-service environments in this phase.
+Only support local execution, GitHub Pages, and AWS Lambda / managed-service environments in this phase.
 Do not ask about ServiceNow, Snowflake, or Power Platform yet.
