@@ -12,7 +12,13 @@ Then say:
 
 "We will ask 5 required questions and up to 2 optional follow-up questions if needed."
 
-When the AI environment supports it, present each multiple-choice question as clickable buttons rather than free-form text. This makes the startup flow faster and easier for the user.
+Use a numbered multiple-choice format as the default for every question. Some IDEs support clickable buttons, but the startup flow must still work if the user answers by typing a number or choosing a button label. The system should always present numbered options first and accept either numeric selection or the matching option text.
+
+Example format:
+
+"1) Fresh repo\n2) Existing project"
+
+Then the user may respond with either "1" or "Fresh repo".
 
 Before any installation starts, the system must check the environment and notify the user about required dependencies. The first step is a dependency check, not installation.
 
