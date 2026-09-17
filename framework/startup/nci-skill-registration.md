@@ -56,7 +56,6 @@ Use these questions to bootstrap the first registry entry for a new NCI app or s
 - A GitHub profile may expose a public email, but it may be absent, private, or unrelated to NIH. Never infer an NIH email from a username, and never scrape or guess one.
 - Ask for and confirm the user's NIH email address separately. Every person who needs registry or application SSO must use an NIH email address; stop and report missing SSO email metadata before registration can continue.
 - Do not ask for a Security Officer at this stage.
-- What is the purpose of the app in one or two sentences?
 - Is this a new registration or an update to an existing registry entry?
 - What is the current version or source revision?
 - What is the creation date and the last-updated date?

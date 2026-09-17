@@ -1,7 +1,7 @@
 ---
 name: cloud-one-github-actions-lambda-deployment
 description: 'Deploy a new Python Lambda application to the NCI Cloud One Development non-production tier from a fresh GitHub repository using GitHub Actions, OIDC role assumption, and SAM. Covers repo creation, environment variable and secret configuration, workflow scaffold, and post-deploy smoke tests.'
-argument-hint: 'Provide app name, GitHub repo (owner/repo), Cloud One Development target, and stack name'
+argument-hint: 'Provide app name, GitHub repo (owner/repo), and Cloud One Development target'
 user-invocable: true
 ---
 
@@ -24,7 +24,7 @@ Before starting, collect:
 1. **App name** — used as the base for the stack name and SAM logical IDs
 2. **GitHub repository** — `<owner>/<repo>` (must exist or be created as part of this process)
 3. **Cloud One tier** — Development non-production (uses `https://iam.cancer.gov/`)
-4. **Stack name** — the CloudFormation stack name, e.g. `my-app-dev`; treat this as user-supplied and environment-specific
+4. **Stack name** — derive automatically as `<Page-Name-With-Dashes>-dev`; do not ask the user for it unless an existing stack must be preserved
 5. **AWS region** — default `us-east-1` unless the account requires otherwise
 6. **AWS deploy role ARN** — IAM role for OIDC assumption (see [IAM Role Discovery](#iam-role-discovery))
 
@@ -209,7 +209,7 @@ Set at the environment level so each environment can target a different stack/re
 | Variable | Example value | Notes                                                          |
 |---|---|----------------------------------------------------------------|
 | `AWS_REGION` | `us-east-1` | AWS region for the CloudFormation stack |
-| `STACK_NAME` | `my-app-dev` | CloudFormation stack name — **user-supplied per environment**  |
+| `STACK_NAME` | `my-app-dev` | Automatically derived as `<Page-Name-With-Dashes>-dev` |
 
 Add any app-specific variables your SAM template needs here as well.
 
@@ -276,7 +276,9 @@ gh workflow run deploy.yml \
 
 Deploy to the Cloud One Development non-production tier using the `dev` GitHub environment. Authenticate through `https://iam.cancer.gov/` with AWS IAM Identity Center. Review the change set first, execute the deployment, then run the root and health smoke tests against the Development endpoint.
 
-Use a stack name such as `<app-name>-dev`, keep `AWS_REGION` set to `us-east-1` unless the account requires another region, and scope the OIDC role trust to `repo:<owner>/<repo>:environment:dev`.
+Use the automatically derived stack name `<Page-Name-With-Dashes>-dev`, keep `AWS_REGION` set to `us-east-1` unless the account requires another region, and scope the OIDC role trust to `repo:<owner>/<repo>:environment:dev`.
+
+Use the standard Python Lambda plus API Gateway SAM template in this document without extended architecture evaluation. Do not compare Lambda, Function URL, API Gateway, ECS, or other deployment approaches during startup. Consider an alternative only when the standard deployment produces a concrete platform error, and then document that error before changing the approach.
 
 ### 6.3 Monitor the run
 ```bash
