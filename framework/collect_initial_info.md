@@ -29,7 +29,7 @@ Then the user may respond with either "1" or "Fresh repo".
 
 Before any installation starts, the system must check the environment and notify the user about required dependencies. The first step is a dependency check, not installation.
 
-The tool must explicitly check whether the following are present: Python, Git, GitHub CLI, and any runtime or CLI tooling required by the selected stack. The system should also verify whether the user has a GitHub account and whether GitHub sign-in is available.
+The tool must explicitly check whether the following are present: Python, Git, GitHub CLI, and any runtime or CLI tooling required by the selected stack. A GitHub account and membership in the CBIIT GitHub Organization are helpful but are not prerequisites for creating the app or preparing its registry entry. Check for GitHub authentication only when the user wants the system to submit the registry change directly.
 
 If required tools are missing, the system must tell the user exactly what is missing and what it will install before proceeding. Example notification:
 
@@ -37,7 +37,7 @@ If required tools are missing, the system must tell the user exactly what is mis
 
 If the user chooses Python and Python is not installed on the machine, the system must tell the user up front: "Python is not installed on this machine. We can install it for you before continuing with the Hello, World app."
 
-If the user does not have a GitHub account, the system must tell them up front: "You need a GitHub account before we can register this app with the NCI Skills Registry. Please sign in or create a GitHub account, then continue."
+If the user does not have a GitHub account, the system must tell them up front: "A GitHub account or CBIIT GitHub Organization membership is not required to build the app. I can prepare and validate the registry.json change locally. To submit it directly, you will need GitHub authentication or an NCI registry maintainer can submit the prepared change for you."
 
 Only after this dependency summary is shown and confirmed should the system begin installation or implementation.
 

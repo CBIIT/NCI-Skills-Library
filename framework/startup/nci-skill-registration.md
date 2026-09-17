@@ -29,6 +29,7 @@ Do not use this skill when:
 - Stable kebab-case skill identifier.
 - Skill name and description.
 - Source repository URL.
+- Registry file: `registry.json` in the NCI Skills Registry repository.
 - Required owner.
 - NCI Owner.
 - NCI DOC (division, office, or center).
@@ -38,6 +39,8 @@ Do not use this skill when:
 - Deployment status: `local-only`, `dev`, `qa`, `stage`, or `production`.
 - URL for each deployed environment; local-only skills must not claim deployed URLs.
 - Optional major-change summary and release notes.
+
+GitHub Organization membership is not required for app creation or for preparing a registry entry. It is only required if the authenticated user must write directly to the CBIIT-owned repository.
 
 ## Starter Questions for the First Registration
 
@@ -60,6 +63,15 @@ Use these questions to bootstrap the first registry entry for a new NCI app or s
 - What deployment status applies: `local-only`, `dev`, `qa`, `stage`, or `production`?
 - Which environment URLs exist today, if any?
 - What changed materially since the last registration, if this is an update?
+
+### Registry access and submission
+
+1. Read the current registry file directly before making changes. Use the raw source URL `https://raw.githubusercontent.com/CBIIT/NCI-Skills-Registry/main/registry.json`; do not require a local clone, `git`, or `gh` for this first read.
+2. Parse `registry.json` as JSON, locate the existing entry by stable skill identifier, and add a new entry or prepare the smallest update. Never overwrite an existing entry or create a duplicate identifier.
+3. Validate the complete JSON document against the registry schema before submission. Preserve formatting and unrelated entries.
+4. If the user has authenticated GitHub write access, submit the changed `registry.json` through the repository's approved branch or pull-request workflow. Do not claim it was committed or merged until GitHub confirms the operation.
+5. If the user has no GitHub account or no write access to the CBIIT organization, save the validated `registry.json` change as a reviewable patch and provide it to an NCI registry maintainer for submission. Do not require the user to join the CBIIT organization just to build or register the app.
+6. If the registry repository uses a different default branch or file location, discover and confirm that location before writing; do not silently assume a path that cannot be read.
 
 ### AWS Lambda / managed-service questions
 - Is this app deployed as an AWS Lambda or in a managed-service pattern such as API Gateway, EventBridge, SQS, Step Functions, or ECS?
@@ -91,14 +103,15 @@ Never claim that a registry change was committed or merged unless the operation 
 
 ## Workflow
 1. Confirm the skill identifier, source repository, owner, dates, version or revision, and deployment status.
-2. Read the skill's registration metadata and compare it with the existing registry entry.
+2. Read `registry.json` directly from the registry repository and compare the proposed entry with the existing registry entry.
 3. Determine whether this is a first registration or a material update. Do not create a no-op update.
 4. Validate the proposed entry against `registry.schema.json` and reject missing owners, dates, invalid statuses, duplicate IDs, or invalid URLs.
 5. Preserve the original `created_date` on updates and set `last_updated_date` to the date of the material change.
 6. For `local-only`, keep environment URLs empty. For every other deployment status, include the URL for each environment that exists and identify environments that are not yet deployed.
-7. Prepare the smallest registry change possible.
-8. Submit the change as a pull request when authenticated repository automation is available. Never put credentials in the skill metadata or output.
-9. Report the exact change, validation result, and pull request or failure details.
+7. Prepare the smallest `registry.json` change possible.
+8. Validate the complete JSON document against the registry schema.
+9. Submit the change as a pull request when authenticated repository automation is available. Otherwise produce a maintainer-ready patch. Never put credentials in the skill metadata or output.
+10. Report the exact change, validation result, and pull request or maintainer-submission details.
 
 ## Quality Checklist
 - [ ] Stable skill ID is present and unchanged.
