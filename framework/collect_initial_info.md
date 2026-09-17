@@ -15,7 +15,7 @@ First say to the user:
 
 Then say:
 
-"We will ask 5 required questions, one at a time, and up to 2 optional follow-up questions if needed. I will wait for your answer before asking the next question."
+"We will ask 4 required questions, one at a time, and only ask follow-up questions when required information cannot be discovered from context. I will wait for your answer before asking the next question."
 
 Ask exactly one question per message. Do not display the remaining questions as a batch or pre-fill answers for them. After each response, confirm or clarify that answer, then ask the next numbered question.
 
@@ -39,6 +39,8 @@ If the user chooses Python and Python is not installed on the machine, the syste
 
 If the user does not have a GitHub account, the system must tell them up front: "A GitHub account or CBIIT GitHub Organization membership is not required to build the app. I can prepare and validate the registry.json change locally. To submit it directly, you will need GitHub authentication or an NCI registry maintainer can submit the prepared change for you."
 
+Before asking for identity information, resolve it from the current session, workspace metadata, authenticated provider context, GitHub profile, repository owner, or available local user metadata. Use the first reliable result, show the value being used, and ask for confirmation only when needed. Do not ask "Who are you?" when the identity can be discovered. Never infer or guess an NIH email address.
+
 Only after this dependency summary is shown and confirmed should the system begin installation or implementation.
 
 Then proceed with Question 1.
@@ -47,16 +49,17 @@ Required questions, in order:
 
 1. Is this a fresh repo or an existing project?
 2. What is the name of the project? This is an open-ended question. Use the project name as the page name and derive a repository-safe `Page-Name-With-Dashes` form when needed.
-3. What is the name of the author? This is an open-ended question. Use the author or GitHub username from the current user, authenticated context, or workspace when it can be determined, and confirm the display name from the public GitHub profile when possible. If it cannot be determined, ask this question before continuing. For SSO, also ask the author to provide and confirm their NIH email address; never infer it from GitHub.
-4. What kind of application and language should we build? Present these choices: web app with Python, web app with Node.js, static site for GitHub Pages, API with Python, CLI with Python, script with Python, library with Python, or I don't know. For a Python web app, use Flask automatically; do not ask the user to choose a Python framework. Do not offer Go or .NET in this initial flow.
-5. Where should the app run? Present these choices: local only, GitHub Pages, or AWS Lambda / managed service.
+3. What kind of application and language should we build? Present these choices: web app with Python, web app with Node.js, static site for GitHub Pages, API with Python, CLI with Python, script with Python, library with Python, or I don't know. For a Python web app, use Flask automatically; do not ask the user to choose a Python framework. Do not offer Go or .NET in this initial flow.
+4. Where should the app run? Present these choices: local only, GitHub Pages, or AWS Lambda / managed service.
+
+After the four required questions, automatically resolve the author, NCI Owner, NCI DOC, GitHub username, and other registration metadata from available context. Ask an open-ended identity question only for a required value that could not be resolved. Ask for an NIH email only when SSO or registry metadata requires it, and require the user to provide it explicitly.
 
 If the project is not fresh, the AI should inspect the existing project context and use that information to answer the remaining questions when possible instead of asking for redundant details.
 
 Optional follow-up questions only if needed:
 
-6. Are there any NCI-specific constraints, security controls, or deployment requirements?
-7. Is this a first registration or an update to an existing registry entry?
+5. Are there any NCI-specific constraints, security controls, or deployment requirements?
+6. Is this a first registration or an update to an existing registry entry?
 
 Conditional deployment question, only when AWS Lambda / managed service is selected:
 

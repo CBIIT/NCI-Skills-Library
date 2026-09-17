@@ -48,11 +48,10 @@ Use these questions to bootstrap the first registry entry for a new NCI app or s
 
 ### Core registration questions
 - What is the app or skill name and the stable identifier you want to register?
-- What is the NCI Owner for this app or skill?
-- What is the NCI DOC (division, office, or center) associated with it?
+- Resolve the NCI Owner and NCI DOC from the authenticated context, workspace metadata, repository ownership, or existing registry entry when possible. Ask only for a required value that cannot be resolved.
 - Unless you provide a different repository, use `https://github.com/CBIIT/<Application-Name>` as the source repository URL, replacing `<Application-Name>` with the application name in repository-safe form.
-- If the GitHub username or organization cannot be inferred from the repository URL or the authenticated GitHub context, ask for the GitHub username before continuing.
-- When a GitHub username is available, use the public GitHub profile API or profile page to retrieve the account's display name. Treat that as a suggested name and ask the user to confirm it.
+- Resolve the GitHub username and display name from the authenticated context, repository owner, workspace metadata, or public GitHub profile when possible. Ask only if a required value cannot be resolved.
+- When a GitHub username is available, use the public GitHub profile API or profile page to retrieve the account's display name. Treat that as a suggested name and confirm it only when the value is ambiguous or required for the registry entry.
 - A GitHub profile may expose a public email, but it may be absent, private, or unrelated to NIH. Never infer an NIH email from a username, and never scrape or guess one.
 - Ask for and confirm the user's NIH email address separately. Every person who needs registry or application SSO must use an NIH email address; stop and report missing SSO email metadata before registration can continue.
 - Do not ask for a Security Officer at this stage.
