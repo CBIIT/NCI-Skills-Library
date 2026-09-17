@@ -60,7 +60,7 @@ Optional follow-up questions only if needed:
 
 Conditional deployment question, only when AWS Lambda / managed service is selected:
 
-- Which Cloud One non-production tier should we use first: Sandbox or Development? Default to Sandbox, then promote to Development after the Sandbox smoke test passes.
+- Use the Cloud One non-production Development tier. Sign in through `https://iam.cancer.gov/` using AWS IAM Identity Center.
 
 Then do this:
 
@@ -69,7 +69,7 @@ Then do this:
 - verify it runs successfully
 - register it with the NCI Skills Registry using [startup/nci-skill-registration.md](startup/nci-skill-registration.md)
 - if GitHub Pages was selected, prepare the repository for GitHub Pages and deploy the static site there
-- if AWS Lambda / managed service was selected, invoke [CloudOneLambdaGitHubActionsDeploy.md](cicd/CloudOneLambdaGitHubActionsDeploy.md), deploy to Cloud One Sandbox first, run the smoke test, and promote to Development only after Sandbox succeeds
+- if AWS Lambda / managed service was selected, invoke [CloudOneLambdaGitHubActionsDeploy.md](cicd/CloudOneLambdaGitHubActionsDeploy.md) and deploy to the Cloud One Development non-production tier through `https://iam.cancer.gov/`
 
 Only support local execution, GitHub Pages, and AWS Lambda / managed-service environments in this phase.
 Do not ask about ServiceNow, Snowflake, or Power Platform yet.

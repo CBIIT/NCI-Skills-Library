@@ -1,7 +1,7 @@
 ---
 name: cloud-one-github-actions-lambda-deployment
-description: 'Deploy a new Python Lambda application to NCI Cloud One (Sandbox or Development) from a fresh GitHub repository using GitHub Actions, OIDC role assumption, and SAM. Covers repo creation, environment variable and secret configuration, workflow scaffold, and post-deploy smoke tests.'
-argument-hint: 'Provide app name, GitHub repo (owner/repo), target Cloud One tier (Sandbox or Development), and stack name'
+description: 'Deploy a new Python Lambda application to the NCI Cloud One Development non-production tier from a fresh GitHub repository using GitHub Actions, OIDC role assumption, and SAM. Covers repo creation, environment variable and secret configuration, workflow scaffold, and post-deploy smoke tests.'
+argument-hint: 'Provide app name, GitHub repo (owner/repo), Cloud One Development target, and stack name'
 user-invocable: true
 ---
 
@@ -13,10 +13,9 @@ Step-by-step guide to stand up a new Python Lambda application in NCI Cloud One 
 
 | Tier | AWS Access Portal |
 |---|---|
-| **Sandbox** | `https://iam-stage.cancer.gov/` |
-| **Development** | `https://iam.cancer.gov/` |
+| **Development (non-production)** | `https://iam.cancer.gov/` |
 
-Open the access portal, choose **AWS IAM Identity Center**, select the target account and role, then use **Management Console** or copy temporary **Access Keys**.
+Sandbox was used for early testing and is not the current target. For this workflow, open `https://iam.cancer.gov/`, choose **AWS IAM Identity Center**, select the Development account and role, then use **Management Console** or copy temporary **Access Keys**.
 
 <mark>Note: some of this could be simplified if the AWS CLI was installed. But then we would need to support that installation</mark>
 
@@ -24,7 +23,7 @@ Open the access portal, choose **AWS IAM Identity Center**, select the target ac
 Before starting, collect:
 1. **App name** — used as the base for the stack name and SAM logical IDs
 2. **GitHub repository** — `<owner>/<repo>` (must exist or be created as part of this process)
-3. **Cloud One tier** — Sandbox or Development (determines access portal URL above)
+3. **Cloud One tier** — Development non-production (uses `https://iam.cancer.gov/`)
 4. **Stack name** — the CloudFormation stack name, e.g. `my-app-dev`; treat this as user-supplied and environment-specific
 5. **AWS region** — default `us-east-1` unless the account requires otherwise
 6. **AWS deploy role ARN** — IAM role for OIDC assumption (see [IAM Role Discovery](#iam-role-discovery))
@@ -118,7 +117,6 @@ on:
         required: true
         type: choice
         options:
-          - sandbox
           - dev
           - qa
           - stage
@@ -200,7 +198,7 @@ Add app-specific `--parameter-overrides` entries for any additional SAM paramete
 
 ## Phase 4 — GitHub Environment Variables and Secrets
 
-Configure these on the GitHub repository **for each environment** (`sandbox`, `dev`, `qa`, `stage`, `prod`). Settings live at:
+Configure these on the GitHub repository **for each environment** (`dev`, `qa`, `stage`, `prod`). For the current Cloud One non-production deployment, configure `dev`. Settings live at:
 ```
 https://github.com/<owner>/<repo>/settings/environments
 ```
@@ -240,7 +238,7 @@ The deploy role must:
 - Trust the GitHub OIDC provider (`token.actions.githubusercontent.com`)
 - Allow `sts:AssumeRoleWithWebIdentity`
 - Have a condition scoped to your repository and environment, e.g.:
-  - `repo:<owner>/<repo>:environment:sandbox` or `repo:<owner>/<repo>:environment:dev`
+  - `repo:<owner>/<repo>:environment:dev`
 
 ### Discover the role in the target account
 ```bash
@@ -274,19 +272,11 @@ gh workflow run deploy.yml \
   -f dry_run=false
 ```
 
-## Phase 6A — Non-Production Promotion
+## Phase 6A — Non-Production Development Deployment
 
-Treat Cloud One **Sandbox** and **Development** as separate deployment targets. Do not promote directly to Development without a successful Sandbox smoke test.
+Deploy to the Cloud One Development non-production tier using the `dev` GitHub environment. Authenticate through `https://iam.cancer.gov/` with AWS IAM Identity Center. Review the change set first, execute the deployment, then run the root and health smoke tests against the Development endpoint.
 
-1. Configure a GitHub environment for `sandbox` with its own `STACK_NAME`, `AWS_REGION`, and `AWS_DEPLOY_ROLE_ARN`. Use a stack name such as `<app-name>-sandbox`.
-2. Run the workflow with `environment=sandbox` and `dry_run=true`, review the change set, then run it again with `dry_run=false`.
-3. Extract the Sandbox endpoint and run the root and health smoke tests. Record the run ID, endpoint, and test result.
-4. Stop if the Sandbox deployment or smoke test fails. Do not promote a failed or unverified build.
-5. Configure a separate GitHub environment for `dev` with its own `STACK_NAME`, `AWS_REGION`, and `AWS_DEPLOY_ROLE_ARN`. Use a stack name such as `<app-name>-dev`.
-6. Run the same workflow for `environment=dev`, first as a dry run and then as an execution after the Sandbox result is accepted.
-7. Run the Development smoke tests and record the resulting endpoint and workflow run.
-
-The Sandbox and Development roles must be scoped independently in their GitHub OIDC trust conditions. The promotion uses the same reviewed commit and workflow; it does not copy credentials or environment secrets between tiers.
+Use a stack name such as `<app-name>-dev`, keep `AWS_REGION` set to `us-east-1` unless the account requires another region, and scope the OIDC role trust to `repo:<owner>/<repo>:environment:dev`.
 
 ### 6.3 Monitor the run
 ```bash
