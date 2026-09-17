@@ -73,10 +73,11 @@ Return:
 6. Build a polished but intentionally simple hello-world landing page with a clean NCI-inspired layout.
 7. Include standard metadata variables such as program name, author, and published date in the page.
 8. Add a simple run command and a smoke-test verification step.
-9. Serve the generated page through a local HTTP server and open the HTTP URL for verification. Never verify the app by opening the HTML file directly with `file://`.
-10. Summarize how to run it locally and what to do next.
-11. If the app is targeted for GitHub Pages, keep the generated site static and prepare the repository for a GitHub Pages deployment.
-12. If the app is targeted for AWS Lambda or managed services, keep the code compatible with a later deploy step without making the initial app overly complex.
+9. Start the local HTTP server as part of this workflow; do not only tell the user how to start it. For Python, launch the Flask app with the appropriate local command and keep the server running for testing.
+10. Open the running site at its `http://localhost` URL in the available browser or preview surface. Never verify the app by opening the HTML file directly with `file://`.
+11. Summarize the running URL and what to do next.
+12. If the app is targeted for GitHub Pages, keep the generated site static and prepare the repository for a GitHub Pages deployment.
+13. If the app is targeted for AWS Lambda or managed services, keep the code compatible with a later deploy step without making the initial app overly complex.
 
 ## Page Design Requirements
 
@@ -88,6 +89,8 @@ It should include:
 - the app/program name or application label immediately to the right of the logo
 - a clean central message area that says Hello, World
 - a short summary line or subtitle describing the app
+- a visible handoff message stating that this Hello World page is an example of what the website could look like and inviting the user to provide the real site requirements to the assistant
+- an example request such as: "Tell the assistant what you want to add next, for example: add a clock to the page."
 - a footer with basic metadata, including at minimum:
   - Program name
   - Author
@@ -97,7 +100,7 @@ It should include:
 
 Use a restrained NCI-inspired palette, a readable sans-serif font stack, a centered responsive content shell, generous but consistent spacing, clear metadata grouping, and a footer that wraps cleanly on small screens. Include a complete stylesheet with base styles, layout styles, typography, links, metadata, header, footer, and responsive rules. Avoid heavy branding, excessive animation, or complex styling.
 
-Before reporting success, start the appropriate local HTTP server, load the page from its `http://localhost` URL in a browser or HTTP response, and confirm that it has no unresolved template placeholders, no default unstyled layout, and no horizontal overflow at a narrow viewport. Never report success based only on opening a local file.
+Before reporting success, start the appropriate local HTTP server, load the page from its `http://localhost` URL in a browser or HTTP response, and confirm that it has no unresolved template placeholders, no default unstyled layout, no horizontal overflow at a narrow viewport, and the requirements handoff message is visible. Never report success based only on opening a local file.
 
 ## Header Requirement
 
