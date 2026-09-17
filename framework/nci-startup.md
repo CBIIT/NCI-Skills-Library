@@ -33,7 +33,7 @@ The agent should:
 - create a minimal hello world app
 - verify it runs locally
 - register it with the NCI Skills Registry
-- add or update the app entry in the registry repository's `registry.json`, validate the complete JSON document, and submit it through authenticated GitHub access or provide a maintainer-ready patch when direct write access is unavailable
+- add or update the app entry in the registry repository's `registry.json` directly on `main`, validate the complete JSON document, and submit it through authenticated GitHub access or provide a maintainer-ready patch when direct write access is unavailable
 - if GitHub Pages was selected, prepare the repository and deploy the static site there
 - if AWS Lambda / managed service was selected, first confirm that the user already has a Cloud One Development account. If not, send them to request one at https://service.cancer.gov/ncisp?id=nci_sc_cat_item&sys_id=ef2bfbaf1bb49810abf0ddb6bc4bcbf4; account provisioning is not automated yet. After the account exists, use the Cloud One deployment workflow to deploy to the Development non-production tier through `https://iam.cancer.gov/`
 

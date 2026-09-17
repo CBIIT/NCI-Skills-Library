@@ -1,6 +1,6 @@
 ---
 name: nci-skill-registration
-description: Use this skill when an NCI skill needs to register itself with the NCI Skills Registry or update its registration after a major change. It helps skill owners and agents prepare a validated registry change. Produces a registry update or a reviewable pull request.
+description: Use this skill when an NCI skill needs to register itself with the NCI Skills Registry or update its registration after a major change. It helps skill owners and agents prepare and validate a registry.json change for direct main-branch submission or maintainer handoff.
 author: CBIIT
 subject_matter_expert: CBIIT
 Language: Markdown, JSON
@@ -69,7 +69,7 @@ Use these questions to bootstrap the first registry entry for a new NCI app or s
 1. Read the current registry file directly before making changes. Use the raw source URL `https://raw.githubusercontent.com/CBIIT/NCI-Skills-Registry/main/registry.json`; do not require a local clone, `git`, or `gh` for this first read.
 2. Parse `registry.json` as JSON, locate the existing entry by stable skill identifier, and add a new entry or prepare the smallest update. Never overwrite an existing entry or create a duplicate identifier.
 3. Validate the complete JSON document against the registry schema before submission. Preserve formatting and unrelated entries.
-4. If the user has authenticated GitHub write access, submit the changed `registry.json` through the repository's approved branch or pull-request workflow. Do not claim it was committed or merged until GitHub confirms the operation.
+4. If the user has authenticated GitHub write access, update `registry.json` directly on the NCI Skills Registry `main` branch. Do not create a separate branch or pull request for this startup registration. Do not claim it was committed until GitHub confirms the operation.
 5. If the user has no GitHub account or no write access to the CBIIT organization, save the validated `registry.json` change as a reviewable patch and provide it to an NCI registry maintainer for submission. Do not require the user to join the CBIIT organization just to build or register the app.
 6. If the registry repository uses a different default branch or file location, discover and confirm that location before writing; do not silently assume a path that cannot be read.
 
@@ -96,7 +96,7 @@ Use these questions to bootstrap the first registry entry for a new NCI app or s
 Return:
 1. A validated registry entry or the minimal update required for the existing entry.
 2. A concise summary of whether the entry was created or updated and why.
-3. The proposed pull request URL, when repository automation is available.
+3. The registry `main` branch commit confirmation, when authenticated repository automation is available.
 4. Assumptions, risks, and any missing required information.
 
 Never claim that a registry change was committed or merged unless the operation was confirmed by the GitHub API or repository tooling.
@@ -110,8 +110,8 @@ Never claim that a registry change was committed or merged unless the operation 
 6. For `local-only`, keep environment URLs empty. For every other deployment status, include the URL for each environment that exists and identify environments that are not yet deployed.
 7. Prepare the smallest `registry.json` change possible.
 8. Validate the complete JSON document against the registry schema.
-9. Submit the change as a pull request when authenticated repository automation is available. Otherwise produce a maintainer-ready patch. Never put credentials in the skill metadata or output.
-10. Report the exact change, validation result, and pull request or maintainer-submission details.
+9. When authenticated repository write access is available, check the changed `registry.json` directly into the NCI Skills Registry `main` branch. Otherwise produce a maintainer-ready patch. Never put credentials in the skill metadata or output.
+10. Report the exact change, validation result, commit confirmation, or maintainer-submission details.
 
 ## Quality Checklist
 - [ ] Stable skill ID is present and unchanged.
@@ -125,10 +125,10 @@ Never claim that a registry change was committed or merged unless the operation 
 - [ ] Existing registry entries were not reformatted or changed unnecessarily.
 - [ ] The registry schema validation passed.
 - [ ] No secrets or sensitive data were added.
-- [ ] The result distinguishes a prepared change from a submitted, merged, or deployed change.
+- [ ] The result distinguishes a prepared change from a committed, merged, or deployed change.
 
 ## Guardrails
-- Do not commit directly to the registry's protected branch when a pull request workflow is available.
+- For this startup registration workflow, commit the validated `registry.json` change directly to the registry repository's `main` branch. Do not create a separate branch.
 - Do not use or request personal access tokens in skill content.
 - Do not invent an owner, date, URL, version, deployment status, or approval.
 - Do not overwrite a skill's original creation date.
