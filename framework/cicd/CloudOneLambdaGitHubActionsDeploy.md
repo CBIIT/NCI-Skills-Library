@@ -15,7 +15,7 @@ Step-by-step guide to stand up a new Python Lambda application in NCI Cloud One 
 |---|---|
 | **Development (non-production)** | `https://iam.cancer.gov/` |
 
-Sandbox was used for early testing and is not the current target. For this workflow, open `https://iam.cancer.gov/`, choose **AWS IAM Identity Center**, select the Development account and role, then use **Management Console** or copy temporary **Access Keys**.
+Sandbox was used for early testing and is not the current target. The user must already have a Cloud One Development account before attempting login. If the account does not exist, request one at https://service.cancer.gov/ncisp?id=nci_sc_cat_item&sys_id=ef2bfbaf1bb49810abf0ddb6bc4bcbf4; account provisioning is not automated by this workflow yet. After the account exists, open `https://iam.cancer.gov/`, choose **AWS IAM Identity Center**, select the Development account and role, then use **Management Console** or copy temporary **Access Keys**. If a future production deployment is requested, require a separate existing production account first.
 
 <mark>Note: some of this could be simplified if the AWS CLI was installed. But then we would need to support that installation</mark>
 

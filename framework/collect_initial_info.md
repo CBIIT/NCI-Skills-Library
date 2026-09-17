@@ -60,7 +60,7 @@ Optional follow-up questions only if needed:
 
 Conditional deployment question, only when AWS Lambda / managed service is selected:
 
-- Use the Cloud One non-production Development tier. Sign in through `https://iam.cancer.gov/` using AWS IAM Identity Center.
+- Use the Cloud One non-production Development tier. Before login, confirm that the user already has an existing Cloud One Development account. If they do not have one, direct them to request an account at https://service.cancer.gov/ncisp?id=nci_sc_cat_item&sys_id=ef2bfbaf1bb49810abf0ddb6bc4bcbf4. Account provisioning is not automated by this startup flow yet. After the account exists, sign in through `https://iam.cancer.gov/` using AWS IAM Identity Center. If production is later selected, require a separate existing production account before login.
 
 Then do this:
 

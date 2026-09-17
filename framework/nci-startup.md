@@ -32,7 +32,7 @@ The agent should:
 - verify it runs locally
 - register it with the NCI Skills Registry
 - if GitHub Pages was selected, prepare the repository and deploy the static site there
-- if AWS Lambda / managed service was selected, use the Cloud One deployment workflow to deploy to the Development non-production tier through `https://iam.cancer.gov/`
+- if AWS Lambda / managed service was selected, first confirm that the user already has a Cloud One Development account. If not, send them to request one at https://service.cancer.gov/ncisp?id=nci_sc_cat_item&sys_id=ef2bfbaf1bb49810abf0ddb6bc4bcbf4; account provisioning is not automated yet. After the account exists, use the Cloud One deployment workflow to deploy to the Development non-production tier through `https://iam.cancer.gov/`
 
 Use the detailed questionnaire in [collect_initial_info.md](collect_initial_info.md).
 
