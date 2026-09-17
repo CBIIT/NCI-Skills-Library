@@ -58,6 +58,10 @@ Optional follow-up questions only if needed:
 6. Are there any NCI-specific constraints, security controls, or deployment requirements?
 7. Is this a first registration or an update to an existing registry entry?
 
+Conditional deployment question, only when AWS Lambda / managed service is selected:
+
+- Which Cloud One non-production tier should we use first: Sandbox or Development? Default to Sandbox, then promote to Development after the Sandbox smoke test passes.
+
 Then do this:
 
 - if the user selected a web app, invoke the hello-world-web-app skill in [startup/hello-world-web-app.md](startup/hello-world-web-app.md) to create the minimal app skeleton
@@ -65,7 +69,7 @@ Then do this:
 - verify it runs successfully
 - register it with the NCI Skills Registry using [startup/nci-skill-registration.md](startup/nci-skill-registration.md)
 - if GitHub Pages was selected, prepare the repository for GitHub Pages and deploy the static site there
-- if AWS deployment was selected, prepare the AWS dev environment and deploy the minimal app there
+- if AWS Lambda / managed service was selected, invoke [CloudOneLambdaGitHubActionsDeploy.md](cicd/CloudOneLambdaGitHubActionsDeploy.md), deploy to Cloud One Sandbox first, run the smoke test, and promote to Development only after Sandbox succeeds
 
 Only support local execution, GitHub Pages, and AWS Lambda / managed-service environments in this phase.
 Do not ask about ServiceNow, Snowflake, or Power Platform yet.

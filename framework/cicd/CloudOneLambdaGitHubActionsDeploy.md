@@ -26,7 +26,7 @@ Before starting, collect:
 2. **GitHub repository** — `<owner>/<repo>` (must exist or be created as part of this process)
 3. **Cloud One tier** — Sandbox or Development (determines access portal URL above)
 4. **Stack name** — the CloudFormation stack name, e.g. `my-app-dev`; treat this as user-supplied and environment-specific
-5. **AWS region** — default `us-east-2` unless the account requires otherwise <mark>our default is us-east-1</mark>
+5. **AWS region** — default `us-east-1` unless the account requires otherwise
 6. **AWS deploy role ARN** — IAM role for OIDC assumption (see [IAM Role Discovery](#iam-role-discovery))
 
 ## Phase 1 — GitHub Repository
@@ -47,7 +47,7 @@ cd <repo>
 ```
 
 Your repository must contain at minimum:
-- `src/app.py` — Lambda handler <mark>There is an AWS standard that this is named function.py. Depending on your deployment methology a different name may work, but conforming will make it always work</mark>
+- `function.py` — Lambda handler using the standard AWS Python function module name
 - `template.yaml` — AWS SAM template
 - `requirements.txt` — runtime dependencies
 - `.github/workflows/deploy.yml` — deployment workflow (created in Phase 3)
@@ -74,7 +74,7 @@ Resources:
   AppFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/app.lambda_handler
+      Handler: function.lambda_handler
       CodeUri: .
       Events:
         Root:
@@ -118,6 +118,7 @@ on:
         required: true
         type: choice
         options:
+          - sandbox
           - dev
           - qa
           - stage
@@ -199,7 +200,7 @@ Add app-specific `--parameter-overrides` entries for any additional SAM paramete
 
 ## Phase 4 — GitHub Environment Variables and Secrets
 
-Configure these on the GitHub repository **for each environment** (`dev`, `qa`, `stage`, `prod`). Settings live at:
+Configure these on the GitHub repository **for each environment** (`sandbox`, `dev`, `qa`, `stage`, `prod`). Settings live at:
 ```
 https://github.com/<owner>/<repo>/settings/environments
 ```
@@ -209,7 +210,7 @@ Set at the environment level so each environment can target a different stack/re
 
 | Variable | Example value | Notes                                                          |
 |---|---|----------------------------------------------------------------|
-| `AWS_REGION` | `us-east-2` <mark>us-east-1</mark> | AWS region for the CloudFormation stack |
+| `AWS_REGION` | `us-east-1` | AWS region for the CloudFormation stack |
 | `STACK_NAME` | `my-app-dev` | CloudFormation stack name — **user-supplied per environment**  |
 
 Add any app-specific variables your SAM template needs here as well.
@@ -226,7 +227,7 @@ Add any app-specific API tokens or credentials your Lambda needs at runtime here
 ### Setting variables and secrets via GitHub CLI
 ```bash
 # Variable — per environment
-gh variable set AWS_REGION  --env dev --body "us-east-2"          -R <owner>/<repo>
+gh variable set AWS_REGION  --env dev --body "us-east-1"          -R <owner>/<repo>
 gh variable set STACK_NAME  --env dev --body "my-app-dev"          -R <owner>/<repo>
 
 # Secret — per environment (value prompted; never pass secrets as CLI arguments)
@@ -239,7 +240,7 @@ The deploy role must:
 - Trust the GitHub OIDC provider (`token.actions.githubusercontent.com`)
 - Allow `sts:AssumeRoleWithWebIdentity`
 - Have a condition scoped to your repository and environment, e.g.:
-  - `repo:<owner>/<repo>:environment:dev`
+  - `repo:<owner>/<repo>:environment:sandbox` or `repo:<owner>/<repo>:environment:dev`
 
 ### Discover the role in the target account
 ```bash
@@ -272,6 +273,20 @@ gh workflow run deploy.yml \
   -f environment=dev \
   -f dry_run=false
 ```
+
+## Phase 6A — Non-Production Promotion
+
+Treat Cloud One **Sandbox** and **Development** as separate deployment targets. Do not promote directly to Development without a successful Sandbox smoke test.
+
+1. Configure a GitHub environment for `sandbox` with its own `STACK_NAME`, `AWS_REGION`, and `AWS_DEPLOY_ROLE_ARN`. Use a stack name such as `<app-name>-sandbox`.
+2. Run the workflow with `environment=sandbox` and `dry_run=true`, review the change set, then run it again with `dry_run=false`.
+3. Extract the Sandbox endpoint and run the root and health smoke tests. Record the run ID, endpoint, and test result.
+4. Stop if the Sandbox deployment or smoke test fails. Do not promote a failed or unverified build.
+5. Configure a separate GitHub environment for `dev` with its own `STACK_NAME`, `AWS_REGION`, and `AWS_DEPLOY_ROLE_ARN`. Use a stack name such as `<app-name>-dev`.
+6. Run the same workflow for `environment=dev`, first as a dry run and then as an execution after the Sandbox result is accepted.
+7. Run the Development smoke tests and record the resulting endpoint and workflow run.
+
+The Sandbox and Development roles must be scoped independently in their GitHub OIDC trust conditions. The promotion uses the same reviewed commit and workflow; it does not copy credentials or environment secrets between tiers.
 
 ### 6.3 Monitor the run
 ```bash

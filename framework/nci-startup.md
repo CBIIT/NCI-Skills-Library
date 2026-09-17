@@ -32,7 +32,7 @@ The agent should:
 - verify it runs locally
 - register it with the NCI Skills Registry
 - if GitHub Pages was selected, prepare the repository and deploy the static site there
-- if AWS deployment was selected, prepare the AWS dev environment and deploy the minimal app there
+- if AWS Lambda / managed service was selected, use the Cloud One deployment workflow, deploy to Sandbox first, smoke-test it, and promote to Development only after Sandbox succeeds
 
 Use the detailed questionnaire in [collect_initial_info.md](collect_initial_info.md).
 
