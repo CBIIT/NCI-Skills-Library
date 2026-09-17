@@ -48,7 +48,8 @@ Use these questions to bootstrap the first registry entry for a new NCI app or s
 
 ### Core registration questions
 - What is the app or skill name and the stable identifier you want to register?
-- Resolve the NCI Owner and NCI DOC from the authenticated context, workspace metadata, repository ownership, or existing registry entry when possible. Ask only for a required value that cannot be resolved.
+- Resolve the author/user and organization first from the authenticated context, workspace metadata, repository ownership, GitHub profile, local user metadata, or an existing registry entry. Ask the open-ended question "Who should be listed as the author/user for this application?" only if the author cannot be inferred. Ask "What organization should be listed for this application?" only if the organization cannot be inferred.
+- Resolve the NCI Owner and NCI DOC from the same sources when possible. Ask only for a required value that cannot be resolved.
 - Unless you provide a different repository, use `https://github.com/CBIIT/<Application-Name>` as the source repository URL, replacing `<Application-Name>` with the application name in repository-safe form.
 - Resolve the GitHub username and display name from the authenticated context, repository owner, workspace metadata, or public GitHub profile when possible. Ask only if a required value cannot be resolved.
 - When a GitHub username is available, use the public GitHub profile API or profile page to retrieve the account's display name. Treat that as a suggested name and confirm it only when the value is ambiguous or required for the registry entry.
