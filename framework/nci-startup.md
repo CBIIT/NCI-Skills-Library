@@ -31,7 +31,7 @@ After loading the bootstrap files, read the current NCI Skills Registry `registr
 Before checking dependencies, configuring GitHub CLI, requesting sign-in, installing tools, or asking project questions, read the first bootstrap files directly from these raw GitHub URLs:
 
 - https://raw.githubusercontent.com/CBIIT/NCI-Skills-Library/main/framework/nci-startup.md
-- https://raw.githubusercontent.com/CBIIT/NCI-Skills-Library/main/framework/collect_initial_info.md
+- https://raw.githubusercontent.com/CBIIT/NCI-Skills-Library/main/framework/startup/collect_initial_info.md
 
 Use the instructions loaded from those URLs to continue the startup flow. Do not run `gh`, `git`, GitHub authentication, or any installation command before these files have been read. This first step must work for a novice who has none of those tools installed.
 
@@ -47,7 +47,7 @@ The agent should:
 - if GitHub Pages was selected, prepare the repository and deploy the static site there
 - if AWS Lambda / managed service was selected, first confirm that the user already has a Cloud One Development account. If not, send them to request one at https://service.cancer.gov/ncisp?id=nci_sc_cat_item&sys_id=ef2bfbaf1bb49810abf0ddb6bc4bcbf4; account provisioning is not automated yet. After the account exists, use the Cloud One deployment workflow to deploy to the Development non-production tier through `https://iam.cancer.gov/`
 
-Use the detailed questionnaire in [collect_initial_info.md](collect_initial_info.md).
+Use the detailed questionnaire in [collect_initial_info.md](startup/collect_initial_info.md).
 
 Present multiple-choice questions with numbered options by default. Accept either the option number or the matching option text; clickable buttons are optional and must not be required.
 
