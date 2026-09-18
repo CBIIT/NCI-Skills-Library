@@ -76,8 +76,10 @@ Then do this:
 - register it with the NCI Skills Registry using [nci-skill-registration.md](nci-skill-registration.md)
 - if the user selected a web app, invoke the hello-world-web-app skill in [hello-world-web-app.md](hello-world-web-app.md) to create the minimal app skeleton
 - build a Hello, World app locally to establish the plumbing for the real application
-- start the local HTTP server and open the running site in the IDE's integrated browser; do not launch an external system browser or stop at telling the user which command to run, and close the integrated browser page when the action is complete
-- verify it runs successfully from the local HTTP server
+- start the local HTTP server and open the running site in the IDE's integrated browser; do not launch an external system browser or stop at telling the user which command to run
+- show the running page to the user and wait for explicit confirmation that the local page looks correct
+- do not close the integrated browser page or load/invoke any cloud deployment skill until the user confirms the local page
+- after confirmation, close the integrated browser page and verify it runs successfully from the local HTTP server
 - if GitHub Pages was selected, prepare the repository for GitHub Pages and deploy the static site there
 - if AWS Lambda / managed service was selected, load the shared [cloud-one-deploy.md](../cicd/cloud-one-deploy.md) foundation and invoke the deployment skill matching the selected language: [cloud-one-python-deploy.md](../cicd/cloud-one-python-deploy.md) for Python or [cloud-one-nodejs-deploy.md](../cicd/cloud-one-nodejs-deploy.md) for Node.js. Deploy only to the Cloud One Development non-production tier through `https://iam.cancer.gov/`
 
