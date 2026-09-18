@@ -21,6 +21,7 @@ Use this skill when:
 - A repository workflow is preparing a registry update after a release.
 
 Do not use this skill when:
+- The app is explicitly local-only and will not be deployed to GitHub Pages or Cloud One.
 - The requested change is unrelated to the skill's registry metadata.
 - The registry entry is already current and no material change has occurred.
 - The change would expose a secret, credential, token, or other sensitive value.
