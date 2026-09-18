@@ -74,7 +74,7 @@ Return:
 7. Include standard metadata variables such as program name, author, and published date in the page.
 8. Add a simple run command and a smoke-test verification step.
 9. Start the local HTTP server as part of this workflow; do not only tell the user how to start it. For Python, launch the Flask app with the appropriate local command and keep the server running for testing.
-10. Open the running site at its `http://localhost` URL in the IDE's integrated browser or preview surface. Do not launch an external system browser. Never verify the app by opening the HTML file directly with `file://`.
+10. Open the running site at its `http://localhost` URL in the IDE's integrated browser or preview surface. Do not launch an external system browser. After the required verification or user-facing action is complete, close the integrated browser page. Never verify the app by opening the HTML file directly with `file://`.
 11. Summarize the running URL and what to do next.
 12. If the app is targeted for GitHub Pages, keep the generated site static and prepare the repository for a GitHub Pages deployment.
 13. If the app is targeted for AWS Lambda or managed services, keep the code compatible with a later deploy step without making the initial app overly complex.
@@ -100,7 +100,7 @@ It should include:
 
 Use a restrained NCI-inspired palette, a readable sans-serif font stack, a centered responsive content shell, generous but consistent spacing, clear metadata grouping, and a footer that wraps cleanly on small screens. Include a complete stylesheet with base styles, layout styles, typography, links, metadata, header, footer, and responsive rules. Avoid heavy branding, excessive animation, or complex styling.
 
-Before reporting success, start the appropriate local HTTP server, load the page from its `http://localhost` URL in the IDE's integrated browser or an HTTP response, and confirm that it has no unresolved template placeholders, no default unstyled layout, no horizontal overflow at a narrow viewport, and the requirements handoff message is visible. Never report success based only on opening a local file.
+Before reporting success, start the appropriate local HTTP server, load the page from its `http://localhost` URL in the IDE's integrated browser or an HTTP response, and confirm that it has no unresolved template placeholders, no default unstyled layout, no horizontal overflow at a narrow viewport, and the requirements handoff message is visible. Close the integrated browser page after verification. Never report success based only on opening a local file.
 
 ## Header Requirement
 

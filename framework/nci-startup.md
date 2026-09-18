@@ -14,7 +14,7 @@ Load this file first. Loading it is sufficient to begin the bootstrap flow. Do n
 
 The agent should begin immediately after this file is loaded, whether the user types `start`, submits a blank response, or types nothing further.
 
-Whenever the workflow needs to open a web page, use the IDE's integrated browser or preview surface. Do not launch an external system browser.
+Whenever the workflow needs to open a web page, use the IDE's integrated browser or preview surface. Do not launch an external system browser. Close the integrated browser page when the required action or verification is complete.
 
 ## What Will Happen
 
