@@ -54,7 +54,7 @@ Use these questions to bootstrap the first registry entry for a new NCI app or s
 - Resolve the GitHub username and display name from the authenticated context, repository owner, workspace metadata, or public GitHub profile when possible. Ask only if a required value cannot be resolved.
 - When a GitHub username is available, use the public GitHub profile API or profile page to retrieve the account's display name. Treat that as a suggested name and confirm it only when the value is ambiguous or required for the registry entry.
 - A GitHub profile may expose a public email, but it may be absent, private, or unrelated to NIH. Never infer an NIH email from a username, and never scrape or guess one.
-- Ask for and confirm the user's NIH email address separately. Every person who needs registry or application SSO must use an NIH email address; stop and report missing SSO email metadata before registration can continue.
+- If a reliable NIH email is already available from the authenticated session, workspace, provider context, or other trusted metadata, use it directly as the confirmed registration and SSO value. Do not ask the user to reconfirm a reliably discovered address. If no reliable NIH email is available, ask for it only when required; every person who needs registry or application SSO must use an NIH email address.
 - Do not ask for a Security Officer at this stage.
 - Is this a new registration or an update to an existing registry entry?
 - What is the current version or source revision?
