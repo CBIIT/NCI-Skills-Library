@@ -49,6 +49,22 @@ module.exports = {
 };
 ```
 
+## Stage-aware static assets
+
+Keep local static serving unchanged with `express.static('public')`, but do not use root-absolute asset URLs in the deployed HTML. API Gateway serves the application behind a stage prefix such as `/dev/`, so `<link rel="stylesheet" href="/styles.css">` requests the wrong host-root path.
+
+Use document-relative asset URLs in HTML served through API Gateway:
+
+```html
+<link rel="stylesheet" href="styles.css">
+<script src="app.js" defer></script>
+<img src="images/logo.svg" alt="Application logo">
+```
+
+Keep these files under `public/`. A page loaded at `/dev/` will then request `/dev/styles.css`, `/dev/app.js`, and `/dev/images/logo.svg` while the local page continues to load the same files normally. Do not add a leading `/` to static asset paths and do not hard-code `/dev/` into the application.
+
+Before deployment, inspect generated HTML for root-absolute local asset references such as `href="/styles.css"` or `src="/app.js"` and replace them with document-relative paths. After deployment, verify both the page and every referenced stylesheet/script/image through the stage-prefixed endpoint, for example `/dev/` and `/dev/styles.css`.
+
 The local entry point may import `app` and listen on `127.0.0.1`. Do not call `listen` from the Lambda module.
 
 ## Boundary-safe SAM template
@@ -258,6 +274,7 @@ After deployment, obtain `AppApiUrl` and require HTTP 200 from both `/dev/` and 
 - `Cannot find module`: confirm the dependency is in `dependencies`, not only `devDependencies`, and that `package-lock.json` is committed.
 - Handler import or export failure: confirm the SAM handler matches `<module>.<export>`, normally `app.handler`.
 - Local server starts during Lambda import: move `listen` into a separate local entry point.
+- Stylesheet or script missing after deployment: check for root-absolute asset URLs beginning with `/`; use document-relative paths and verify the asset through the API Gateway stage prefix.
 - Runtime rejected by SAM or Lambda: select a supported Node.js runtime for the target account and keep the GitHub Actions Node version aligned with it.
 - API Gateway route mismatch: keep both `/` and `/{proxy+}` events and test the `/dev/` stage explicitly.
 
