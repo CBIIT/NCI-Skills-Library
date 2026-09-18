@@ -73,13 +73,13 @@ Conditional deployment question, only when AWS Lambda / managed service is selec
 
 Then do this:
 
-- register it with the NCI Skills Registry using [startup/nci-skill-registration.md](startup/nci-skill-registration.md)
-- if the user selected a web app, invoke the hello-world-web-app skill in [startup/hello-world-web-app.md](startup/hello-world-web-app.md) to create the minimal app skeleton
+- register it with the NCI Skills Registry using [nci-skill-registration.md](nci-skill-registration.md)
+- if the user selected a web app, invoke the hello-world-web-app skill in [hello-world-web-app.md](hello-world-web-app.md) to create the minimal app skeleton
 - build a Hello, World app locally to establish the plumbing for the real application
 - start the local HTTP server and open the running site in the IDE's integrated browser; do not launch an external system browser or stop at telling the user which command to run, and close the integrated browser page when the action is complete
 - verify it runs successfully from the local HTTP server
 - if GitHub Pages was selected, prepare the repository for GitHub Pages and deploy the static site there
-- if AWS Lambda / managed service was selected, invoke [cloud-one-deploy.md](cicd/cloud-one-deploy.md) and deploy to the Cloud One Development non-production tier through `https://iam.cancer.gov/`
+- if AWS Lambda / managed service was selected, load the shared [cloud-one-deploy.md](../cicd/cloud-one-deploy.md) foundation and invoke the deployment skill matching the selected language: [cloud-one-python-deploy.md](../cicd/cloud-one-python-deploy.md) for Python or [cloud-one-nodejs-deploy.md](../cicd/cloud-one-nodejs-deploy.md) for Node.js. Deploy only to the Cloud One Development non-production tier through `https://iam.cancer.gov/`
 
 Only support local execution, GitHub Pages, and AWS Lambda / managed-service environments in this phase.
 Do not ask about ServiceNow, Snowflake, or Power Platform yet.

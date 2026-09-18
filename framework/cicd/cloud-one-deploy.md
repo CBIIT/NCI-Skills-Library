@@ -1,27 +1,31 @@
 ---
-name: cloud-one-github-actions-lambda-deployment
-description: 'Deploy a Python Lambda application to NCI Cloud One Development from GitHub Actions. Use when creating or repairing the GitHub OIDC deployment role, applying the Cloud One PowerUser permission boundary and guardrail policies, discovering immutable CBIIT repository trust subjects, scaffolding a boundary-safe SAM stack, or validating a dev deployment.'
-argument-hint: 'Provide app name, GitHub repository (owner/repo), and Cloud One Development account'
-user-invocable: true
+name: cloud-one-github-actions-deployment-foundation
+description: 'Shared NCI Cloud One Development deployment controls for GitHub Actions and AWS SAM. Use as the required foundation for the language-specific Python and Node.js Cloud One deployment skills; it covers account verification, exact OIDC trust, permission boundaries, GitHub environments, dry-run review, execution, and smoke-test completion.'
+argument-hint: 'Provide GitHub repository (owner/repo), Cloud One Development account, runtime skill, and stack name'
+user-invocable: false
 ---
 
-# Cloud One GitHub Actions Lambda Deployment
+# Cloud One GitHub Actions Deployment Foundation
 
-Deploy a Python Lambda application to the NCI Cloud One Development non-production tier from a GitHub repository. GitHub Actions is the deployment mechanism and authenticates to AWS through GitHub OIDC; do not store AWS access keys in GitHub.
+Apply these shared controls to supported language-specific Cloud One deployment skills:
 
-This procedure includes the deploy-role bootstrap proven in the Cloud One PowerUser account model. IAM creation is conditional: reuse a correct role when one already exists, and obtain explicit user approval immediately before attaching broad managed policies such as `PowerUserAccess`.
+- [Python Lambda deployment](cloud-one-python-deploy.md)
+- [Node.js Lambda deployment](cloud-one-nodejs-deploy.md)
+
+Work only in the NCI Cloud One Development non-production tier. GitHub Actions is the deployment mechanism and authenticates to AWS through GitHub OIDC; never store AWS access keys in GitHub.
 
 ## Safety and platform invariants
 
-- Work only in the user-selected Cloud One Development account. Verify the account ID before every IAM or CloudFormation mutation.
-- Use an IAM role name beginning with `power-user` and attach the account's `PermissionBoundary_PowerUser` boundary at creation time.
-- Scope OIDC trust to one exact GitHub repository and GitHub environment. Do not use wildcard repository subjects.
+- Verify the selected account ID before every IAM or CloudFormation mutation.
+- Use an IAM role name beginning with `power-user` and attach the account's `PermissionBoundary_PowerUser` boundary when creating it.
+- Scope OIDC trust to one exact GitHub repository and GitHub environment. Never use wildcard repository subjects.
 - Query the repository's OIDC customization before composing trust. CBIIT repositories may use immutable organization and repository IDs in the `sub` claim.
 - Never print, persist, or commit temporary AWS credentials. Prefer AWS CLI IAM Identity Center/SSO sessions.
-- Create a dry-run CloudFormation change set and inspect it before executing the deployment.
-- Treat deleting/replacing an existing role or stack as destructive. Only replace a role created during the current workflow and never successfully used; otherwise stop and escalate.
+- Create and inspect a dry-run CloudFormation change set before executing deployment.
+- Treat deleting or replacing an existing role or stack as destructive. Only replace a role created during the current workflow that has never been successfully used; otherwise stop and escalate.
+- Obtain explicit user approval immediately before attaching `PowerUserAccess` or any equivalent broad managed policy.
 
-## Required inputs
+## Shared inputs
 
 Collect or derive:
 
@@ -33,9 +37,9 @@ Collect or derive:
 6. Stack name, normally `<app-slug>-dev`.
 7. Deploy-role name, normally `power-user-<repo-slug>-github-actions-dev`.
 
-Keep generated IAM role names at or below AWS's 64-character limit. Shorten the app slug—not the required `power-user` prefix—when necessary.
+Keep IAM role names at or below 64 characters. Shorten the app slug, not the required `power-user` prefix.
 
-## Phase 1 — Authenticate and verify the target
+## Authenticate and verify the target
 
 Open `https://iam.cancer.gov/`, choose **AWS IAM Identity Center**, and select the intended Development account and PowerUser permission set. Configure or use a named AWS CLI SSO profile; do not copy credentials into the repository or GitHub settings.
 
@@ -48,208 +52,29 @@ Confirm the returned account ID and ARN with the user-selected account before co
 
 `https://service.cancer.gov/ncisp?id=nci_sc_cat_item&sys_id=ef2bfbaf1bb49810abf0ddb6bc4bcbf4`
 
-This skill does not provision Cloud One accounts or authorize production deployment.
+This workflow does not provision Cloud One accounts or authorize production deployment.
 
-## Phase 2 — Create or verify the GitHub repository
+## Create or verify the GitHub repository
+
+Create the private repository only when requested and absent. Verify access and capture its immutable ID together with the organization ID:
 
 ```bash
-# Create only when requested and absent.
-gh repo create <owner>/<repo> --private --confirm
-
-# Verify access and capture immutable IDs.
-gh repo view <owner>/<repo> --json nameWithOwner,databaseId,url
+gh repo create <owner>/<repo> --private
+gh api repos/<owner>/<repo> --jq '{name: .full_name, id: .id, url: .html_url}'
 gh api orgs/<owner> --jq '{login, id}'
 ```
 
-Clone the repository if needed. It must contain at minimum:
+The language-specific skill defines the required application files, runtime, SAM template, tests, and GitHub Actions workflow.
 
-- `function.py` — Lambda handler.
-- `template.yaml` — AWS SAM template.
-- `requirements.txt` — runtime dependencies.
-- `.github/workflows/deploy.yml` — GitHub Actions deployment workflow.
+## Create or verify the GitHub OIDC deploy role
 
-## Phase 3 — Build a boundary-safe SAM template
-
-Cloud One PowerUser guardrails can reject SAM's automatically generated Lambda execution role because its name does not start with `power-user` and it has no permission boundary. Define the execution role explicitly.
-
-Use this baseline `template.yaml`:
-
-```yaml
-AWSTemplateFormatVersion: '2010-09-09'
-Transform: AWS::Serverless-2016-10-31
-
-Parameters:
-  ApiStageName:
-    Type: String
-    Default: dev
-
-Globals:
-  Function:
-    Runtime: python3.12
-    Timeout: 30
-
-Resources:
-  AppFunctionExecutionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub power-user-${AWS::StackName}-lambda
-      PermissionsBoundary: !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/PermissionBoundary_PowerUser
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: lambda.amazonaws.com
-            Action: sts:AssumeRole
-      Policies:
-        - PolicyName: lambda-basic-logs
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: !Sub arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:*
-
-  UsageApi:
-    Type: AWS::Serverless::Api
-    Properties:
-      StageName: !Ref ApiStageName
-      OpenApiVersion: '3.0.1'
-
-  AppFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Handler: function.lambda_handler
-      CodeUri: .
-      Role: !GetAtt AppFunctionExecutionRole.Arn
-      Events:
-        Root:
-          Type: Api
-          Properties:
-            Path: /
-            Method: ANY
-            RestApiId: !Ref UsageApi
-        Proxy:
-          Type: Api
-          Properties:
-            Path: /{proxy+}
-            Method: ANY
-            RestApiId: !Ref UsageApi
-
-Outputs:
-  AppApiUrl:
-    Description: API Gateway endpoint URL
-    Value: !Sub https://${UsageApi}.execute-api.${AWS::Region}.amazonaws.com/${ApiStageName}/
-```
-
-`OpenApiVersion: '3.0.1'` prevents SAM from synthesizing an additional hard-coded `Stage` stage. Add only the least-privilege runtime permissions the function needs to the execution role.
-
-If CloudFormation returns an explicit organization/SCP deny for API Gateway creation, document the exact denial before considering a Lambda Function URL. Do not preemptively change architectures.
-
-## Phase 4 — Create the GitHub Actions workflow
-
-Create `.github/workflows/deploy.yml`:
-
-```yaml
-name: deploy
-
-on:
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: Deployment environment
-        required: true
-        type: choice
-        options:
-          - dev
-      dry_run:
-        description: Create a change set without execution
-        required: true
-        type: boolean
-        default: true
-
-env:
-  AWS_REGION: ${{ vars.AWS_REGION }}
-  STACK_NAME: ${{ vars.STACK_NAME }}
-
-jobs:
-  deploy:
-    name: Deploy to ${{ inputs.environment }}
-    runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
-
-    permissions:
-      id-token: write
-      contents: read
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Setup SAM CLI
-        run: pip install aws-sam-cli
-
-      - name: Validate required variables
-        run: |
-          test -n "$AWS_REGION" || (echo "Missing variable: AWS_REGION" && exit 1)
-          test -n "$STACK_NAME" || (echo "Missing variable: STACK_NAME" && exit 1)
-
-      - name: Configure AWS credentials with OIDC
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Validate and build
-        run: |
-          sam validate --lint
-          sam build
-
-      - name: Deploy dry run
-        if: ${{ inputs.dry_run }}
-        run: |
-          sam deploy \
-            --stack-name "$STACK_NAME" \
-            --region "$AWS_REGION" \
-            --resolve-s3 \
-            --no-fail-on-empty-changeset \
-            --no-execute-changeset \
-            --capabilities CAPABILITY_NAMED_IAM \
-            --parameter-overrides ApiStageName='${{ inputs.environment }}'
-
-      - name: Deploy
-        if: ${{ !inputs.dry_run }}
-        run: |
-          sam deploy \
-            --stack-name "$STACK_NAME" \
-            --region "$AWS_REGION" \
-            --resolve-s3 \
-            --no-fail-on-empty-changeset \
-            --capabilities CAPABILITY_NAMED_IAM \
-            --parameter-overrides ApiStageName='${{ inputs.environment }}'
-```
-
-Use `CAPABILITY_NAMED_IAM` because the template assigns an explicit execution-role name. Add app-specific parameter overrides only when the template defines them.
-
-## Phase 5 — Create or verify the GitHub OIDC deploy role
-
-### 5.1 Resolve the exact GitHub OIDC subject
+### Resolve the exact OIDC subject
 
 Do not assume the standard GitHub subject format. Query the repository first:
 
 ```bash
 gh api repos/<owner>/<repo>/actions/oidc/customization/sub
 ```
-
-Interpret the response:
 
 - If `use_immutable_subject` is `true`, use `<sub_claim_prefix>:environment:dev`.
 - Otherwise use `repo:<owner>/<repo>:environment:dev`.
@@ -260,9 +85,9 @@ An immutable subject resembles:
 repo:<owner>@<organization-id>/<repo>@<repository-id>:environment:dev
 ```
 
-The numeric IDs are intentional. Do not substitute the human-readable subject if immutable subjects are enabled.
+The numeric IDs are intentional. Do not substitute the human-readable subject when immutable subjects are enabled.
 
-### 5.2 Inspect account prerequisites
+### Inspect account prerequisites
 
 Using the selected AWS CLI profile, verify the OIDC provider, boundary, local guardrail policies, and any existing role:
 
@@ -279,7 +104,7 @@ aws iam get-role \
   --profile <cloud-one-profile>
 ```
 
-The expected GitHub provider ARN is:
+The expected provider ARN is:
 
 ```text
 arn:aws:iam::<account-id>:oidc-provider/token.actions.githubusercontent.com
@@ -287,9 +112,9 @@ arn:aws:iam::<account-id>:oidc-provider/token.actions.githubusercontent.com
 
 If the role exists, verify its exact trust subject, permission boundary, attached policies, and last-used information. Reuse it only when all values are correct.
 
-### 5.3 Create the role when absent
+### Create the role when absent
 
-Construct a trust policy containing:
+Construct an exact trust policy:
 
 ```json
 {
@@ -304,7 +129,7 @@ Construct a trust policy containing:
       "Condition": {
         "StringEquals": {
           "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
-          "token.actions.githubusercontent.com:sub": "<exact-subject-from-5.1>"
+          "token.actions.githubusercontent.com:sub": "<exact-subject>"
         }
       }
     }
@@ -312,7 +137,7 @@ Construct a trust policy containing:
 }
 ```
 
-Create the role with the boundary in the same API call:
+Create the role with its boundary in the same API call:
 
 ```bash
 aws iam create-role \
@@ -344,9 +169,9 @@ aws iam attach-role-policy \
   --profile <cloud-one-profile>
 ```
 
-Policy names can differ between accounts. Discover and verify local policy ARNs rather than guessing when these exact names are absent.
+Policy names can differ between accounts. Discover and verify local policy ARNs instead of guessing when these names are absent.
 
-### 5.4 Verify the finished role
+### Verify the role
 
 ```bash
 aws iam get-role \
@@ -358,16 +183,11 @@ aws iam list-attached-role-policies \
   --profile <cloud-one-profile>
 ```
 
-Confirm:
+Confirm the `power-user` prefix, `PermissionBoundary_PowerUser`, GitHub provider, `aud=sts.amazonaws.com`, exact repository/environment subject, and expected managed and local guardrail policies.
 
-- Role name begins with `power-user`.
-- Boundary is `PermissionBoundary_PowerUser`.
-- Trust has the GitHub provider, `aud=sts.amazonaws.com`, and the exact repository/environment subject.
-- Expected managed and local guardrail policies are attached.
+Some Cloud One guardrails permit `iam:CreateRole` but deny `iam:UpdateAssumeRolePolicy`. If a newly created role has incorrect trust, first confirm it was created in the current workflow and has never been successfully assumed. Only then may it be detached, deleted, and recreated. Never replace a pre-existing or active role without separate authorization.
 
-Some Cloud One guardrails allow `iam:CreateRole` but deny `iam:UpdateAssumeRolePolicy`. If a newly created role has incorrect trust, first confirm it was created in this workflow and has never been successfully assumed. Only then may it be detached/deleted and recreated with the corrected trust. Never replace a pre-existing or active role without separate authorization.
-
-## Phase 6 — Configure the GitHub environment
+## Configure the GitHub environment
 
 Create the `dev` environment and set:
 
@@ -375,33 +195,27 @@ Create the `dev` environment and set:
 |---|---|---|
 | Variable | `AWS_REGION` | `us-east-1` |
 | Variable | `STACK_NAME` | `my-app-dev` |
-| Secret | `AWS_DEPLOY_ROLE_ARN` | ARN verified in Phase 5 |
+| Secret | `AWS_DEPLOY_ROLE_ARN` | Verified role ARN |
 
 ```bash
+gh api --method PUT repos/<owner>/<repo>/environments/dev
 gh variable set AWS_REGION --env dev --body 'us-east-1' -R <owner>/<repo>
 gh variable set STACK_NAME --env dev --body '<app-slug>-dev' -R <owner>/<repo>
 gh secret set AWS_DEPLOY_ROLE_ARN --env dev -R <owner>/<repo>
 ```
 
-Allow `gh secret set` to prompt for the ARN. Do not place sensitive values directly in command arguments. The role ARN itself is not a credential, but using the prompt keeps the secret-setting pattern safe and consistent.
+Allow `gh secret set` to prompt for the ARN. Do not put credentials in command arguments. The role ARN is not a credential, but the prompt preserves the secret-setting pattern.
 
-## Phase 7 — Validate, deploy, and smoke test
+## Review, deploy, and verify
 
-Run local validation before pushing when the SAM CLI is available:
-
-```bash
-sam validate --lint
-sam build
-```
-
-Commit and push the application and workflow. Then run a dry deployment:
+Run the language-specific tests and SAM validation before pushing. Commit and push the application and workflow, then run a dry deployment:
 
 ```bash
 gh workflow run deploy.yml -R <owner>/<repo> -f environment=dev -f dry_run=true
 gh run list -R <owner>/<repo> --workflow deploy.yml --limit 3
 ```
 
-Inspect the GitHub Actions log and CloudFormation change set. After confirming the planned resources are scoped to the intended stack/account, execute:
+Inspect the workflow log and CloudFormation change set. Confirm the resources and changes are scoped to the selected Development account and stack. Execute only after that review:
 
 ```bash
 gh workflow run deploy.yml -R <owner>/<repo> -f environment=dev -f dry_run=false
@@ -414,36 +228,30 @@ gh api repos/<owner>/<repo>/actions/runs/<run-id> \
   --jq '{status: .status, conclusion: (.conclusion // "running"), updated_at: .updated_at}'
 ```
 
-The SAM CLI setup can take several minutes on a fresh runner. Once successful, obtain `AppApiUrl` from the stack outputs or workflow log and test:
+Once successful, obtain the application URL from stack outputs or the workflow log. Require HTTP 200 from the implemented root and health routes. Record the account, region, stack, role ARN, workflow run, endpoint, and smoke-test result without recording credentials.
 
-```bash
-curl -fsS 'https://<api-id>.execute-api.<region>.amazonaws.com/dev/'
-curl -fsS 'https://<api-id>.execute-api.<region>.amazonaws.com/dev/health'
-```
-
-Require HTTP 200 from the implemented routes. Record the account, region, stack, role ARN, run ID, endpoint, and smoke-test result in the deployment handoff or registry without recording credentials.
-
-## Diagnosing known failures
+## Shared failure checks
 
 | Symptom | Likely cause | Resolution |
 |---|---|---|
-| `Not authorized to perform sts:AssumeRoleWithWebIdentity` although the visible repo/environment looks correct | Repository uses an immutable OIDC subject | Query `repos/<owner>/<repo>/actions/oidc/customization/sub`; use `sub_claim_prefix:environment:<env>`. CloudTrail `AssumeRoleWithWebIdentity` events can confirm the presented subject. |
-| `iam:UpdateAssumeRolePolicy` is denied | Cloud One PowerUser boundary/deny policy blocks trust updates | Recreate only a role created in this workflow that has never been used; otherwise escalate to an IAM administrator. |
-| `iam:CreateRole` is denied for a SAM-generated role | Generated execution-role name lacks the `power-user` prefix or required boundary | Define the Lambda execution role explicitly with the prefix and `PermissionBoundary_PowerUser`. |
-| CloudFormation requests IAM acknowledgement for a named role | Template uses `RoleName` | Deploy with `CAPABILITY_NAMED_IAM`. |
-| `/Stage/` works but `/dev/` returns 403 | SAM synthesized a duplicate default stage | Set `OpenApiVersion: '3.0.1'` on `AWS::Serverless::Api` and redeploy. |
-| First deployment leaves the stack in `ROLLBACK_COMPLETE` | A resource failed during initial stack creation | Inspect stack events, fix the cause, obtain authorization to delete the failed stack, wait for deletion, and redeploy. |
-| `Setup SAM CLI` appears stuck | Slow runner setup | Wait up to 10 minutes; cancel and retry once if there is still no progress. |
-| Explicit SCP deny on API Gateway creation | Organization policy blocks the operation | Capture the denial and use an approved alternative such as a Lambda Function URL only after confirming the restriction. |
-| `No changes to deploy` | Template and packaged code are unchanged | Expected; treat as success when the existing stack is healthy. |
-| Missing variable or secret | GitHub environment was not configured | Set the value specifically on the `dev` environment and rerun. |
+| `Not authorized to perform sts:AssumeRoleWithWebIdentity` although the visible repo/environment looks correct | Repository uses an immutable OIDC subject | Query the repository customization and use `sub_claim_prefix:environment:<env>`. |
+| `iam:UpdateAssumeRolePolicy` is denied | Boundary or deny policy blocks trust updates | Recreate only a role created in the current workflow that has never been used; otherwise escalate. |
+| `iam:CreateRole` is denied for a SAM-generated role | Generated role lacks the `power-user` prefix or boundary | Define the Lambda execution role explicitly with both requirements. |
+| CloudFormation requests IAM acknowledgement | Template assigns a role name | Deploy with `CAPABILITY_NAMED_IAM`. |
+| `/Stage/` works but `/dev/` returns 403 | SAM synthesized a duplicate stage | Set `OpenApiVersion: '3.0.1'` on the `AWS::Serverless::Api`. |
+| Initial stack is `ROLLBACK_COMPLETE` | A resource failed during stack creation | Inspect events, fix the cause, obtain authorization before deleting the failed stack, wait for deletion, and redeploy. |
+| SAM setup appears stuck | Slow fresh runner setup | Wait up to 10 minutes; cancel and retry once if there is still no progress. |
+| Explicit SCP deny on API Gateway creation | Organization policy blocks the operation | Capture the denial and use an approved alternative only after confirming the restriction. |
+| `No changes to deploy` | Template and package are unchanged | Treat as success when the existing stack is healthy. |
+| Missing variable or secret | GitHub environment is incomplete | Set the value on the `dev` environment and rerun. |
 
 ## Completion criteria
 
-The deployment is complete only when:
+Deployment is complete only when:
 
-1. The GitHub Actions OIDC role has exact repository/environment trust, the required boundary, and verified policies.
-2. The SAM dry run was reviewed before execution.
-3. The execute run succeeded.
-4. The root and health routes return HTTP 200 at the intended `/dev/` stage.
-5. Deployment metadata was recorded without credentials.
+1. The OIDC role has exact repository/environment trust, the required boundary, and verified policies.
+2. The language-specific local checks passed.
+3. The SAM dry run was reviewed before execution.
+4. The execute run succeeded.
+5. The deployed root and health routes return HTTP 200.
+6. Deployment metadata was recorded without credentials.
