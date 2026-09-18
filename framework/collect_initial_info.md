@@ -75,7 +75,7 @@ Then do this:
 - start the local HTTP server and open the running site; do not stop at telling the user which command to run
 - verify it runs successfully from the local HTTP server
 - if GitHub Pages was selected, prepare the repository for GitHub Pages and deploy the static site there
-- if AWS Lambda / managed service was selected, invoke [CloudOneLambdaGitHubActionsDeploy.md](cicd/CloudOneLambdaGitHubActionsDeploy.md) and deploy to the Cloud One Development non-production tier through `https://iam.cancer.gov/`
+- if AWS Lambda / managed service was selected, invoke [cloud-one-deploy.md](cicd/cloud-one-deploy.md) and deploy to the Cloud One Development non-production tier through `https://iam.cancer.gov/`
 
 Only support local execution, GitHub Pages, and AWS Lambda / managed-service environments in this phase.
 Do not ask about ServiceNow, Snowflake, or Power Platform yet.
