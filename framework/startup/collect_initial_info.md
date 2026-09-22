@@ -15,7 +15,7 @@ First say to the user:
 
 Then say:
 
-"We will ask 5 required questions, one at a time, and only ask follow-up questions when required information cannot be discovered from context. I will wait for your answer before asking the next question."
+"We will ask 4 required questions, one at a time, and only ask follow-up questions when required information cannot be discovered from context. I will wait for your answer before asking the next question."
 
 Ask exactly one question per message. Do not display the remaining questions as a batch or pre-fill answers for them. After each response, confirm or clarify that answer, then ask the next numbered question.
 
@@ -52,14 +52,13 @@ Required questions, in order:
 1. Is this a fresh repo or an existing project?
 2. What is the name of the project? This is an open-ended question. Use the project name as the page name and derive a repository-safe `Page-Name-With-Dashes` form when needed.
 3. What type of application should we build? Present these choices: Web Page, REST API Interface, or Local Command Line Script.
-4. What language should we use? Present these choices: Python or Node.js. For a Python Web Page, use Flask automatically; do not ask the user to choose a Python framework.
-5. Where should the app run? Present these choices: local only, GitHub Pages, or AWS Lambda / managed service.
+4. Where should the app run? Present these choices: local only, GitHub Pages, or AWS Lambda / managed service.
 
 After the initial questions are answered, explain what happens next:
 
 "Next I will build and run a Hello, World application locally. If you selected GitHub Pages or Cloud One, I will also register the app, check the project into GitHub, and use the appropriate deployment workflow. This creates and verifies the plumbing for software development so we can quickly and iteratively build the site to your requirements. A local-only app does not require registry registration or GitHub credentials."
 
-After the five required questions, begin the registry registration phase before building the Hello, World app only when the target is GitHub Pages or Cloud One. First infer the author/user, organization, and NIH email from the current session, workspace metadata, authenticated provider context, repository owner, GitHub profile, or local user metadata. Use any reliably discovered NIH email directly as the confirmed registration and SSO value; do not ask a redundant confirmation question such as "Should I use this NIH email?" If the author/user cannot be inferred, ask: "Who should be listed as the author/user for this application?" If the organization cannot be inferred, ask: "What organization should be listed for this application?" These are open-ended registration questions and must not be asked when the values are already known. Then resolve the NCI Owner, NCI DOC, GitHub username, and other registration metadata from the same sources. Ask for an NIH email only when it is required and cannot be reliably discovered. Skip this phase for a local-only target.
+After the four required questions, begin the registry registration phase before building the Hello, World app only when the target is GitHub Pages or Cloud One. First infer the author/user, organization, and NIH email from the current session, workspace metadata, authenticated provider context, repository owner, GitHub profile, or local user metadata. Use any reliably discovered NIH email directly as the confirmed registration and SSO value; do not ask a redundant confirmation question such as "Should I use this NIH email?" If the author/user cannot be inferred, ask: "Who should be listed as the author/user for this application?" If the organization cannot be inferred, ask: "What organization should be listed for this application?" These are open-ended registration questions and must not be asked when the values are already known. Then resolve the NCI Owner, NCI DOC, GitHub username, and other registration metadata from the same sources. Ask for an NIH email only when it is required and cannot be reliably discovered. Skip this phase for a local-only target.
 
 If the project is not fresh, the AI should inspect the existing project context and use that information to answer the remaining questions when possible instead of asking for redundant details.
 
