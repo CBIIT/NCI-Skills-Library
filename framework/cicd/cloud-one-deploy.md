@@ -20,7 +20,7 @@ Work only in the NCI Cloud One Development non-production tier. GitHub Actions i
 - Use an IAM role name beginning with `power-user` and attach the account's `PermissionBoundary_PowerUser` boundary when creating it.
 - Scope OIDC trust to one exact GitHub repository and GitHub environment. Never use wildcard repository subjects.
 - Query the repository's OIDC customization before composing trust. CBIIT repositories may use immutable organization and repository IDs in the `sub` claim.
-- Never print, persist, or commit temporary AWS credentials. Prefer AWS CLI IAM Identity Center/SSO sessions.
+- Never print, persist, or commit temporary AWS credentials. GitHub Actions uses OIDC and does not require a local AWS login for a normal deployment.
 - Create and inspect a dry-run CloudFormation change set before executing deployment.
 - Treat deleting or replacing an existing role or stack as destructive. Only replace a role created during the current workflow that has never been successfully used; otherwise stop and escalate.
 - Obtain explicit user approval immediately before attaching `PowerUserAccess` or any equivalent broad managed policy.
@@ -41,18 +41,17 @@ Keep IAM role names at or below 64 characters. Shorten the app slug, not the req
 
 ## Authenticate and verify the target
 
-Open `https://iam.cancer.gov/`, choose **AWS IAM Identity Center**, and select the intended Development account and PowerUser permission set. Configure or use a named AWS CLI SSO profile; do not copy credentials into the repository or GitHub settings.
+For a normal deployment, skip local IAM login. GitHub Actions authenticates to AWS through the repository's OIDC deploy role. Confirm that the `dev` GitHub environment already contains the correct `AWS_DEPLOY_ROLE_ARN`, `AWS_REGION`, and `STACK_NAME`, then let the workflow validate the target account.
 
-```bash
-aws sso login --profile <cloud-one-profile>
-aws sts get-caller-identity --profile <cloud-one-profile>
-```
+Open `https://iam.cancer.gov/` in the IDE's integrated browser only when the account or OIDC role must be created or manually verified. Close the integrated browser page when that action is complete. Do not launch an external browser.
 
-Confirm the returned account ID and ARN with the user-selected account before continuing. If the Development account does not exist, request it at:
+If AWS CLI commands are required for account or role setup, run them in the IDE's integrated terminal. The integrated browser cannot execute AWS CLI commands or replace their terminal output. Do not copy credentials into the repository or GitHub settings.
+
+If the Development account does not exist, request it at:
 
 `https://service.cancer.gov/ncisp?id=nci_sc_cat_item&sys_id=ef2bfbaf1bb49810abf0ddb6bc4bcbf4`
 
-This workflow does not provision Cloud One accounts or authorize production deployment.
+This workflow does not provision Cloud One accounts or authorize production deployment. Once the account and deploy role already exist, do not open the IAM portal as part of the deployment.
 
 ## Create or verify the GitHub repository
 
