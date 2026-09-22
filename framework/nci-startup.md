@@ -14,19 +14,19 @@ Load this file first. Loading it is sufficient to begin the bootstrap flow. Do n
 
 The agent should begin immediately after this file is loaded, whether the user types `start`, submits a blank response, or types nothing further.
 
-Whenever the workflow needs to open a web page, use the IDE's integrated browser or preview surface. Do not launch an external system browser. Close the integrated browser page when the required action or verification is complete.
+Whenever the workflow needs to open a web page, use the IDE's integrated browser or preview surface. Do not launch an external system browser. For the local Hello World gate, keep the integrated browser page open until the user verifies the page; close it only after that verification is complete. For Cloud One deployment, skip IAM login when the GitHub OIDC deploy role is already configured; use the integrated browser only for account or role setup.
 
 ## What Will Happen
 
 Tell the user this process up front:
 
 1. Collect a small amount of necessary information and keep the questions to a minimum.
-2. Register the app with the NCI Skills Registry. This step requires GitHub credentials for direct submission. Explain why GitHub is needed; if credentials are unavailable, mark the app **Unregistered for now**, keep the validated registry change, and continue.
+2. If the target is GitHub Pages or Cloud One, register the app with the NCI Skills Registry. This step requires GitHub credentials for direct submission. Explain why GitHub is needed; if credentials are unavailable, mark the app **Unregistered for now**, keep the validated registry change, and continue. For a local-only target, skip registration and do not request GitHub credentials.
 3. Build a Hello, World app locally to create and verify the plumbing that the real app will use. Explain this purpose before building.
-4. Deploy to Cloud One Development non-prod only if the user selected a cloud target.
+4. After the user verifies the running local page, deploy to Cloud One Development non-prod only if the user selected a cloud target.
 5. Start building the real application after the baseline is verified and the registration status is reported.
 
-After loading the bootstrap files, read the current NCI Skills Registry `registry.json` directly from `https://raw.githubusercontent.com/CBIIT/NCI-Skills-Registry/main/registry.json` before creating the app. Use it to detect an existing entry and prepare the new app registration. Do not require `git`, `gh`, a GitHub account, or CBIIT organization membership for this initial read or for preparing the change.
+After loading the bootstrap files, read the current NCI Skills Registry `registry.json` directly from `https://raw.githubusercontent.com/CBIIT/NCI-Skills-Registry/main/registry.json` only when the target is GitHub Pages or Cloud One. Use it to detect an existing entry and prepare the new app registration. For a local-only target, skip the registry read. Do not require `git`, `gh`, a GitHub account, or CBIIT organization membership for this initial read or for preparing the change.
 
 ## First Step: Load Bootstrap Files
 
@@ -42,9 +42,10 @@ The agent should:
 - confirm this is NCI-aligned work
 - read any required source files directly from the GitHub repository by direct file access, without requiring `git`, `gh`, or any local repository tooling to be installed
 - ask the minimum project questions
-- register it with the NCI Skills Registry
-- add or update the app entry in the registry repository's `registry.json` directly on `main`, validate the complete JSON document, and submit it through authenticated GitHub access or provide a maintainer-ready patch when direct write access is unavailable
+- if the target is GitHub Pages or Cloud One, register it with the NCI Skills Registry
+- if the target is GitHub Pages or Cloud One, add or update the app entry in the registry repository's `registry.json` directly on `main`, validate the complete JSON document, and submit it through authenticated GitHub access or provide a maintainer-ready patch when direct write access is unavailable
 - create a minimal hello world app to establish and verify the local plumbing
+- start the local server, show the page in the IDE's integrated browser, and wait for the user's explicit verification before continuing
 - verify it runs locally
 - if GitHub Pages was selected, prepare the repository and deploy the static site there
 - if AWS Lambda / managed service was selected, first confirm that the user already has a Cloud One Development account. If not, send them to request one at https://service.cancer.gov/ncisp?id=nci_sc_cat_item&sys_id=ef2bfbaf1bb49810abf0ddb6bc4bcbf4; account provisioning is not automated yet. After the account exists, use the Cloud One deployment workflow to deploy to the Development non-production tier through `https://iam.cancer.gov/`
@@ -53,7 +54,7 @@ Use the detailed questionnaire in [collect_initial_info.md](startup/collect_init
 
 Present multiple-choice questions with numbered options by default. Accept either the option number or the matching option text; clickable buttons are optional and must not be required.
 
-If the user chooses a web app during startup, invoke the hello-world-web-app skill to create the minimal local baseline. After that baseline is verified, continue with NCI Skills Registry registration and optional AWS dev deployment if needed.
+If the user chooses a Web Page during startup, invoke the hello-world-web-app skill to create the minimal local baseline. After that baseline is verified, continue with NCI Skills Registry registration and optional AWS dev deployment if needed.
 
 ## Repository Access Rule
 

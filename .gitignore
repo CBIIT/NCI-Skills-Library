@@ -12,3 +12,6 @@ Thumbs.db
 .env
 *.key
 
+# FISMA starter kit reference documents (official templates, not for version control)
+reference/nci-fisma-starter-kit/
+

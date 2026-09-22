@@ -39,7 +39,7 @@ If the user chooses Python and Python is not installed on the machine, the syste
 
 If the user does not have a GitHub account, the system must tell them up front: "A GitHub account or CBIIT GitHub Organization membership is not required to build the app. I can prepare and validate the registry.json change locally. To submit it directly, you will need GitHub authentication or an NCI registry maintainer can submit the prepared change for you."
 
-When the registry phase begins, explain that direct registration requires GitHub credentials because the validated app entry must be written to `registry.json` in the NCI Skills Registry. If credentials are unavailable, mark the app **Unregistered for now**, preserve the validated registry change for later submission, and continue with local build work.
+When the registry phase begins for a GitHub Pages or Cloud One target, explain that direct registration requires GitHub credentials because the validated app entry must be written to `registry.json` in the NCI Skills Registry. If credentials are unavailable, mark the app **Unregistered for now**, preserve the validated registry change for later submission, and continue with local build work. For a local-only target, skip registration and do not request GitHub credentials.
 
 Before asking for identity information, resolve it from the current session, workspace metadata, authenticated provider context, GitHub profile, repository owner, or available local user metadata. Use the first reliable result, including a reliably discovered NIH email address, without asking the user to confirm it again. Do not ask "Who are you?" when the identity can be discovered. Never infer or guess an NIH email address.
 
@@ -51,33 +51,35 @@ Required questions, in order:
 
 1. Is this a fresh repo or an existing project?
 2. What is the name of the project? This is an open-ended question. Use the project name as the page name and derive a repository-safe `Page-Name-With-Dashes` form when needed.
-3. What kind of application and language should we build? Present these choices: web app with Python, web app with Node.js, static site for GitHub Pages, API with Python, CLI with Python, script with Python, library with Python, or I don't know. For a Python web app, use Flask automatically; do not ask the user to choose a Python framework. Do not offer Go or .NET in this initial flow.
+3. What type of application should we build? Present these choices: Web Page, REST API Interface, or Local Command Line Script.
 4. Where should the app run? Present these choices: local only, GitHub Pages, or AWS Lambda / managed service.
 
 After the initial questions are answered, explain what happens next:
 
-"Next I will register the app, build and run a Hello, World application locally, check the project into GitHub, and use GitHub Actions to deploy it to Cloud One Development. This creates and verifies the plumbing for software development so we can quickly and iteratively build the site to your requirements. Direct registry updates and GitHub check-in require GitHub credentials; if they are unavailable, I will preserve the validated registry change and report the app as Unregistered for now."
+"Next I will build and run a Hello, World application locally. If you selected GitHub Pages or Cloud One, I will also register the app, check the project into GitHub, and use the appropriate deployment workflow. This creates and verifies the plumbing for software development so we can quickly and iteratively build the site to your requirements. A local-only app does not require registry registration or GitHub credentials."
 
-After the four required questions, begin the registry registration phase before building the Hello, World app. First infer the author/user, organization, and NIH email from the current session, workspace metadata, authenticated provider context, repository owner, GitHub profile, or local user metadata. Use any reliably discovered NIH email directly as the confirmed registration and SSO value; do not ask a redundant confirmation question such as "Should I use this NIH email?" If the author/user cannot be inferred, ask: "Who should be listed as the author/user for this application?" If the organization cannot be inferred, ask: "What organization should be listed for this application?" These are open-ended registration questions and must not be asked when the values are already known. Then resolve the NCI Owner, NCI DOC, GitHub username, and other registration metadata from the same sources. Ask for an NIH email only when it is required and cannot be reliably discovered.
+After the four required questions, begin the registry registration phase before building the Hello, World app only when the target is GitHub Pages or Cloud One. First infer the author/user, organization, and NIH email from the current session, workspace metadata, authenticated provider context, repository owner, GitHub profile, or local user metadata. Use any reliably discovered NIH email directly as the confirmed registration and SSO value; do not ask a redundant confirmation question such as "Should I use this NIH email?" If the author/user cannot be inferred, ask: "Who should be listed as the author/user for this application?" If the organization cannot be inferred, ask: "What organization should be listed for this application?" These are open-ended registration questions and must not be asked when the values are already known. Then resolve the NCI Owner, NCI DOC, GitHub username, and other registration metadata from the same sources. Ask for an NIH email only when it is required and cannot be reliably discovered. Skip this phase for a local-only target.
 
 If the project is not fresh, the AI should inspect the existing project context and use that information to answer the remaining questions when possible instead of asking for redundant details.
 
 Optional follow-up questions only if needed:
 
-5. Are there any NCI-specific constraints, security controls, or deployment requirements?
-6. Is this a first registration or an update to an existing registry entry?
+6. Are there any NCI-specific constraints, security controls, or deployment requirements?
+7. Is this a first registration or an update to an existing registry entry?
 
 Conditional deployment question, only when AWS Lambda / managed service is selected:
 
-- Use the Cloud One non-production Development tier. Before login, confirm that the user already has an existing Cloud One Development account. If they do not have one, direct them to request an account at https://service.cancer.gov/ncisp?id=nci_sc_cat_item&sys_id=ef2bfbaf1bb49810abf0ddb6bc4bcbf4. Account provisioning is not automated by this startup flow yet. After the account exists, sign in through `https://iam.cancer.gov/` using AWS IAM Identity Center, complete the credential step, and close the IAM window. If production is later selected, require a separate existing production account before login and close that IAM window after authentication too.
+- Use the Cloud One non-production Development tier. Before deployment, confirm that the user already has an existing Cloud One Development account and that the GitHub OIDC deploy role is configured. If the account does not exist, direct the user to request it at https://service.cancer.gov/ncisp?id=nci_sc_cat_item&sys_id=ef2bfbaf1bb49810abf0ddb6bc4bcbf4. Skip the IAM login for normal GitHub Actions deployment. Open `https://iam.cancer.gov/` in the IDE's integrated browser only when account or role setup is required, and close it after that action. If AWS CLI commands are needed, run them in the IDE's integrated terminal; the browser cannot replace the CLI.
 
 Then do this:
 
-- register it with the NCI Skills Registry using [nci-skill-registration.md](nci-skill-registration.md)
-- if the user selected a web app, invoke the hello-world-web-app skill in [hello-world-web-app.md](hello-world-web-app.md) to create the minimal app skeleton
+- if the target is GitHub Pages or Cloud One, register it with the NCI Skills Registry using [nci-skill-registration.md](nci-skill-registration.md)
+- if the user selected a Web Page, invoke the hello-world-web-app skill in [hello-world-web-app.md](hello-world-web-app.md) to create the minimal app skeleton
 - build a Hello, World app locally to establish the plumbing for the real application
-- start the local HTTP server and open the running site in the IDE's integrated browser; do not launch an external system browser or stop at telling the user which command to run, and close the integrated browser page when the action is complete
-- verify it runs successfully from the local HTTP server
+- start the local HTTP server and open the running site in the IDE's integrated browser; do not launch an external system browser or stop at telling the user which command to run
+- show the running page to the user and wait for explicit confirmation that the local page looks correct
+- do not close the integrated browser page or load/invoke any cloud deployment skill until the user confirms the local page
+- after confirmation, close the integrated browser page and verify it runs successfully from the local HTTP server
 - if GitHub Pages was selected, prepare the repository for GitHub Pages and deploy the static site there
 - if AWS Lambda / managed service was selected, load the shared [cloud-one-deploy.md](../cicd/cloud-one-deploy.md) foundation and invoke the deployment skill matching the selected language: [cloud-one-python-deploy.md](../cicd/cloud-one-python-deploy.md) for Python or [cloud-one-nodejs-deploy.md](../cicd/cloud-one-nodejs-deploy.md) for Node.js. Deploy only to the Cloud One Development non-production tier through `https://iam.cancer.gov/`
 
