@@ -14,7 +14,7 @@ The PDF is an official reference template. If the PDF form fields are difficult 
 |---|---|---|
 | System Name |  | Startup project name |
 | System Acronym |  | Project slug or registry identifier |
-| Application Type | Web Page / REST API Interface / Local Command Line Script | Startup answer |
+| Application Type | Web Page / REST API Interface / MCP Server / Local Command Line Script | Startup answer |
 | Hosting Target | Local / GitHub Pages / Cloud One Development | Startup answer |
 | User Population |  | Owner input |
 | Authentication Method | None / NIH SSO / GitHub / Other | Startup/deployment context |

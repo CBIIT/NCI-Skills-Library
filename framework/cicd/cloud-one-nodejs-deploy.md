@@ -208,6 +208,7 @@ jobs:
         run: |
           test -n "$AWS_REGION" || (echo "Missing variable: AWS_REGION" && exit 1)
           test -n "$STACK_NAME" || (echo "Missing variable: STACK_NAME" && exit 1)
+          test "$AWS_REGION" = "us-east-1" || (echo "AWS_REGION must be us-east-1 (N. Virginia); got $AWS_REGION" && exit 1)
 
       - name: Configure AWS credentials with OIDC
         uses: aws-actions/configure-aws-credentials@v4

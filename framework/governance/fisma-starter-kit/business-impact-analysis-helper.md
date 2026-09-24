@@ -42,7 +42,7 @@ Describe the generated application in plain language.
 
 | Field | Draft Value |
 |---|---|
-| Application Type | Web Page / REST API Interface / Local Command Line Script |
+| Application Type | Web Page / REST API Interface / MCP Server / Local Command Line Script |
 | Runtime | Python / Node.js |
 | Hosting Target | Local / GitHub Pages / Cloud One Development |
 | System Description |  |
