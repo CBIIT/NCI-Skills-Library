@@ -78,6 +78,7 @@ Then do this:
 
 - if the target is GitHub Pages or Cloud One, register it with the NCI Skills Registry using [nci-skill-registration.md](nci-skill-registration.md)
 - if the user selected a Web Page, invoke the hello-world-web-app skill in [hello-world-web-app.md](hello-world-web-app.md) to create the minimal app skeleton
+- if the user selected REST API Interface, invoke the hello-world-api skill in [hello-world-api.md](hello-world-api.md) to create the minimal API skeleton
 - if the user selected MCP Server, invoke the hello-world-mcp-server skill in [hello-world-mcp-server.md](hello-world-mcp-server.md) to create the minimal server skeleton
 - build a Hello, World app locally to establish the plumbing for the real application
 - start the local HTTP server and open the running site in the IDE's integrated browser; do not launch an external system browser or stop at telling the user which command to run
