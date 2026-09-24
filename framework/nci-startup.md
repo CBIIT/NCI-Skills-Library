@@ -61,7 +61,7 @@ Use the detailed questionnaire in [collect_initial_info.md](startup/collect_init
 
 Present multiple-choice questions with numbered options by default. Accept either the option number or the matching option text; clickable buttons are optional and must not be required.
 
-If the user chooses a Web Page during startup, invoke the hello-world-web-app skill to create the minimal local baseline. If the user chooses REST API Interface during startup, invoke the hello-world-api skill to create the minimal local baseline. If the user chooses MCP Server during startup, invoke the hello-world-mcp-server skill to create the minimal local baseline. After that baseline is verified, continue with NCI Skills Registry registration and optional AWS dev deployment if needed.
+If the user chooses a Web Page during startup, invoke the hello-world-web-app skill to create the minimal local baseline. If the user chooses REST API Interface during startup, invoke the hello-world-api skill to create the minimal local baseline. If the user chooses MCP Server during startup, invoke the hello-world-mcp-server skill to create the minimal local baseline. If the user chooses Local Command Line Script during startup, invoke the hello-world-cli skill to create the minimal local baseline; this app type is local-only and skips registry registration and cloud deployment. After that baseline is verified, continue with NCI Skills Registry registration and optional AWS dev deployment if needed.
 
 ## Repository Access Rule
 
