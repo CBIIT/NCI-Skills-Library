@@ -18,7 +18,7 @@ The PDF is an official reference template. If the PDF form fields are difficult 
 | System Owner |  | Registry/startup context |
 | Contact Email |  | Trusted identity context or user input |
 | Hosting Environment | Local / GitHub Pages / Cloud One Development | Startup target |
-| Application Type | Web Page / REST API Interface / Local Command Line Script | Startup answer |
+| Application Type | Web Page / REST API Interface / MCP Server / Local Command Line Script | Startup answer |
 
 ## Privacy Screening
 

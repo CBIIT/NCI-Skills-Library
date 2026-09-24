@@ -33,7 +33,7 @@ Collect or derive:
 2. GitHub repository as `<owner>/<repo>`.
 3. GitHub deployment environment, normally `dev`.
 4. Selected Cloud One Development AWS account and CLI profile.
-5. AWS region, normally `us-east-1`.
+5. AWS region, always `us-east-1` (N. Virginia). Never deploy to another region without explicit written authorization.
 6. Stack name, normally `<app-slug>-dev`.
 7. Deploy-role name, normally `power-user-<repo-slug>-github-actions-dev`.
 
