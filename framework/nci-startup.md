@@ -30,12 +30,19 @@ After loading the bootstrap files, read the current NCI Skills Registry `registr
 
 ## First Step: Load Bootstrap Files
 
-Before checking dependencies, configuring GitHub CLI, requesting sign-in, installing tools, or asking project questions, read the first bootstrap files directly from these raw GitHub URLs:
+Immediately tell the user, in bold: **"We need to fetch the appropriate files to inform the startup."**
+
+Before checking dependencies, configuring GitHub CLI, requesting sign-in, installing tools, or asking project questions, obtain the first bootstrap files:
+
+- `framework/nci-startup.md`
+- `framework/startup/collect_initial_info.md`
+
+First check whether the NCI-Skills-Library repository is already available locally (for example, already cloned in the current workspace or at a known local path). If a local copy is found, read the bootstrap files from that local copy instead of fetching from GitHub, and tell the user: "Using the locally installed NCI-Skills-Library instead of fetching from GitHub." Only when no local copy is found, read the files directly from these raw GitHub URLs:
 
 - https://raw.githubusercontent.com/CBIIT/NCI-Skills-Library/main/framework/nci-startup.md
 - https://raw.githubusercontent.com/CBIIT/NCI-Skills-Library/main/framework/startup/collect_initial_info.md
 
-Use the instructions loaded from those URLs to continue the startup flow. Do not run `gh`, `git`, GitHub authentication, or any installation command before these files have been read. This first step must work for a novice who has none of those tools installed.
+Use the instructions loaded from the local copy or those URLs to continue the startup flow. Do not run `gh`, `git`, GitHub authentication, or any installation command before these files have been read. This first step must work for a novice who has none of those tools installed.
 
 The agent should:
 
