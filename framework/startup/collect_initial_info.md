@@ -57,6 +57,8 @@ Required questions, in order:
 4. What language would you prefer the app to be written in? Present these choices: 1. Python, 2. Node.js, 3. Java, 4. I don't care or I don't know. This question is a preference signal only; if a required runtime or deployment skill is not available for the chosen language, tell the user before continuing and agree on a supported alternative.
 5. Where should the app run? Present these choices: local only, GitHub Pages, or AWS Lambda / managed service.
 
+Repository naming: when this system creates a new GitHub repository for a fresh project, prefix the repository name with `nci-ai-` (for example, `nci-ai-page-name-with-dashes`) to mark it as generated through this AI-assisted system. Only the repository name carries the prefix; keep the project name, page title, and registry application name unprefixed. Do not rename or re-prefix an existing repository for an existing project.
+
 After the initial questions are answered, explain what happens next:
 
 "Next I will build and run a Hello, World application locally. If you selected GitHub Pages or Cloud One, I will also register the app, check the project into GitHub, and use the appropriate deployment workflow. This creates and verifies the plumbing for software development so we can quickly and iteratively build the site to your requirements. A local-only app does not require registry registration or GitHub credentials."
