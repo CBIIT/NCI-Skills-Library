@@ -21,7 +21,7 @@ Ask exactly one question per message. Do not display the remaining questions as 
 
 Use a numbered multiple-choice format for choice questions. Open-ended questions do not need numbered options. Some IDEs support clickable buttons, but the startup flow must still work if the user answers by typing a number or choosing a button label. The system should always present numbered options first for choice questions and accept either numeric selection or the matching option text.
 
-Format every question to the user in bold text, with a `####` line immediately before and immediately after the question, so it is visually unmistakable that an action is required. Do not bold the numbered options.
+Format every request for user feedback in bold text, with a `####` line immediately before and immediately after it, so it is visually unmistakable that an action is required. This includes the numbered startup questions, open-ended questions, and any other point where the assistant waits for confirmation, approval, or the user to say "done" before continuing (for example, verifying the local Hello World page). Do not bold the numbered options.
 
 Example format:
 
@@ -57,6 +57,8 @@ Required questions, in order:
 4. What language would you prefer the app to be written in? Present these choices: 1. Python, 2. Node.js, 3. Java, 4. I don't care or I don't know. This question is a preference signal only; if a required runtime or deployment skill is not available for the chosen language, tell the user before continuing and agree on a supported alternative.
 5. Where should the app run? Present these choices: local only, GitHub Pages, or AWS Lambda / managed service.
 
+Repository naming: when this system creates a new GitHub repository for a fresh project, prefix the repository name with `nci-ai-` (for example, `nci-ai-page-name-with-dashes`) to mark it as generated through this AI-assisted system. Only the repository name carries the prefix; keep the project name, page title, and registry application name unprefixed. Do not rename or re-prefix an existing repository for an existing project.
+
 After the initial questions are answered, explain what happens next:
 
 "Next I will build and run a Hello, World application locally. If you selected GitHub Pages or Cloud One, I will also register the app, check the project into GitHub, and use the appropriate deployment workflow. This creates and verifies the plumbing for software development so we can quickly and iteratively build the site to your requirements. A local-only app does not require registry registration or GitHub credentials."
@@ -78,6 +80,9 @@ Then do this:
 
 - if the target is GitHub Pages or Cloud One, register it with the NCI Skills Registry using [nci-skill-registration.md](nci-skill-registration.md)
 - if the user selected a Web Page, invoke the hello-world-web-app skill in [hello-world-web-app.md](hello-world-web-app.md) to create the minimal app skeleton
+- if the user selected REST API Interface, invoke the hello-world-api skill in [hello-world-api.md](hello-world-api.md) to create the minimal API skeleton
+- if the user selected MCP Server, invoke the hello-world-mcp-server skill in [hello-world-mcp-server.md](hello-world-mcp-server.md) to create the minimal server skeleton
+- if the user selected Local Command Line Script, invoke the hello-world-cli skill in [hello-world-cli.md](hello-world-cli.md) to create the minimal script skeleton
 - build a Hello, World app locally to establish the plumbing for the real application
 - start the local HTTP server and open the running site in the IDE's integrated browser; do not launch an external system browser or stop at telling the user which command to run
 - show the running page to the user and wait for explicit confirmation that the local page looks correct
