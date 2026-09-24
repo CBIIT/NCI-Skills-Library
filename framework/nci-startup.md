@@ -61,6 +61,8 @@ Use the detailed questionnaire in [collect_initial_info.md](startup/collect_init
 
 Present multiple-choice questions with numbered options by default. Accept either the option number or the matching option text; clickable buttons are optional and must not be required.
 
+Whenever the assistant needs feedback from the user — a numbered question, an open-ended question, a confirmation, an approval, or waiting for the user to say "done" or otherwise signal readiness before continuing — precede and follow that request with its own line of hash characters (`####`), and put the request itself in bold. Do not bold numbered options. This applies everywhere in the startup flow, not only to the required questions in [collect_initial_info.md](startup/collect_initial_info.md).
+
 If the user chooses a Web Page during startup, invoke the hello-world-web-app skill to create the minimal local baseline. If the user chooses REST API Interface during startup, invoke the hello-world-api skill to create the minimal local baseline. If the user chooses MCP Server during startup, invoke the hello-world-mcp-server skill to create the minimal local baseline. If the user chooses Local Command Line Script during startup, invoke the hello-world-cli skill to create the minimal local baseline; this app type is local-only and skips registry registration and cloud deployment. After that baseline is verified, continue with NCI Skills Registry registration and optional AWS dev deployment if needed.
 
 ## Repository Access Rule

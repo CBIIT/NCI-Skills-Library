@@ -21,7 +21,7 @@ Ask exactly one question per message. Do not display the remaining questions as 
 
 Use a numbered multiple-choice format for choice questions. Open-ended questions do not need numbered options. Some IDEs support clickable buttons, but the startup flow must still work if the user answers by typing a number or choosing a button label. The system should always present numbered options first for choice questions and accept either numeric selection or the matching option text.
 
-Format every question to the user in bold text, with a `####` line immediately before and immediately after the question, so it is visually unmistakable that an action is required. Do not bold the numbered options.
+Format every request for user feedback in bold text, with a `####` line immediately before and immediately after it, so it is visually unmistakable that an action is required. This includes the numbered startup questions, open-ended questions, and any other point where the assistant waits for confirmation, approval, or the user to say "done" before continuing (for example, verifying the local Hello World page). Do not bold the numbered options.
 
 Example format:
 
