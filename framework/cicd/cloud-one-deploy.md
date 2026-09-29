@@ -29,7 +29,7 @@ Work only in the NCI Cloud One Development non-production tier. GitHub Actions i
 
 Collect or derive:
 
-1. App name and filesystem/repository slug.
+1. App name and filesystem/repository slug. For a fresh repository created by this system, prefix the repository slug with `nci-ai-` (for example, `nci-ai-app-slug`).
 2. GitHub repository as `<owner>/<repo>`.
 3. GitHub deployment environment, normally `dev`.
 4. Selected Cloud One Development AWS account and CLI profile.
@@ -37,7 +37,7 @@ Collect or derive:
 6. Stack name, normally `<app-slug>-dev`.
 7. Deploy-role name, normally `power-user-<repo-slug>-github-actions-dev`.
 
-Keep IAM role names at or below 64 characters. Shorten the app slug, not the required `power-user` prefix.
+Keep IAM role names at or below 64 characters. Shorten the app slug, not the required `power-user` prefix or the `nci-ai-` repository prefix.
 
 ## Authenticate and verify the target
 
