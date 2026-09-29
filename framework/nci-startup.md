@@ -65,7 +65,21 @@ Whenever the assistant needs feedback from the user — a numbered question, an 
 
 If the user chooses a Web Page during startup, invoke the hello-world-web-app skill to create the minimal local baseline. If the user chooses REST API Interface during startup, invoke the hello-world-api skill to create the minimal local baseline. If the user chooses MCP Server during startup, invoke the hello-world-mcp-server skill to create the minimal local baseline. If the user chooses Local Command Line Script during startup, invoke the hello-world-cli skill to create the minimal local baseline; this app type is local-only and skips registry registration and cloud deployment. After that baseline is verified, continue with NCI Skills Registry registration and optional AWS dev deployment if needed.
 
-Whenever the startup flow needs to perform an action on GitHub itself — creating or verifying a repository, committing or updating `registry.json`, opening a pull request, or checking a workflow run — load [github-mcp-actions.md](technology/github/github-mcp-actions.md) and use a connected GitHub MCP server for that action when one is available, following its confirmation gates for hard-to-reverse writes. Fall back to `gh`/`git` CLI commands only when no GitHub MCP server is connected.
+## GitHub MCP Preflight Gate
+
+Before the first GitHub-side action — including reading or updating the registry, creating or verifying a repository, committing GitHub-hosted content, opening a pull request, configuring deployment, or checking a workflow run — load [github-mcp-actions.md](technology/github/github-mcp-actions.md) and complete its GitHub MCP preflight gate.
+
+The gate must:
+
+1. Discover all currently callable GitHub MCP tools, including deferred tools exposed through the environment's equivalent of tool search or callable-tool inventory.
+2. Inspect the connected GitHub App accounts and installations when those tools are available.
+3. Verify MCP access to every existing target repository, beginning with `CBIIT/NCI-Skills-Registry` for a registered cloud or GitHub Pages target.
+4. Build and report a per-operation capability matrix identifying which planned GitHub actions are supported and access-verified through MCP.
+5. Use MCP for every supported, access-verified GitHub action.
+
+This gate is fail-closed. Never silently fall back to `gh`, `git`, or raw GitHub HTTP calls. Consolidate all known unsupported or access-blocked operation classes into one preflight fallback request so the user is not asked repeatedly. State each exact operation, the missing MCP capability or repository-access failure, and the proposed fallback mechanism. Wait for the user to acknowledge that consolidated fallback plan before executing it, using the required bold request between `####` lines. Ask again only if a materially different fallback becomes necessary later.
+
+For a fresh repository, a repository-creation capability may be absent from the MCP server. After an acknowledged fallback creates the repository, immediately verify it through the MCP repository-read tool. If that check returns `404` and the GitHub App installation uses selected repositories, stop and ask the user or an organization administrator to add the repository to the installation. Do not use CLI for later MCP-supported actions while repository access remains unresolved.
 
 ## Repository Access Rule
 

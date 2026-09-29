@@ -37,9 +37,45 @@ Do not use this skill when:
 
 GitHub MCP tool names and toolsets vary by server configuration (e.g., a hosted server may expose a different tool set than a self-hosted one, and toolsets like `issues`, `pull_requests`, `actions`, `repos` may be enabled or disabled independently). Before acting:
 
-1. Use `tool_search` (or the equivalent tool-discovery mechanism) to find the currently loaded GitHub MCP tools — do not assume a fixed tool name exists.
-2. If the needed capability isn't available, tell the user which toolset appears to be missing (e.g., "the `actions` toolset isn't enabled on this GitHub MCP server") rather than guessing at a tool name or silently switching to `gh`.
-3. Prefer the MCP tool over an equivalent `gh`/`git` shell command whenever both are available and the MCP tool covers the need, so the action is auditable through the MCP session.
+1. Use `tool_search` or the environment's complete callable-tool inventory to find every currently loaded GitHub MCP tool. Inspect deferred tools as well as tools shown in the initial prompt; do not treat an abbreviated initial tool list as proof that no GitHub MCP server is connected.
+2. When available, call the tools equivalent to `github_list_installed_accounts` and `github_list_installations`. Record the visible organizations, whether each installation covers all or selected repositories, and whether the relevant account is present.
+3. Call the repository-read tool equivalent to `github_get_repo` for every existing target repository. For startup registration, probe `CBIIT/NCI-Skills-Registry` before reading or updating it.
+4. Build the capability matrix described below before performing the first GitHub-side action.
+5. If a needed capability is unavailable, identify the missing toolset (for example, repository creation, Actions dispatch, environments, variables, or secrets) instead of guessing a tool name or silently switching to CLI.
+6. Prefer MCP over equivalent `gh`, `git`, or raw HTTP operations whenever MCP covers the action and has verified target access.
+
+## Required Preflight Capability Matrix
+
+Before the first GitHub-side action, report a compact matrix with one row per planned operation:
+
+| Operation | MCP capability available | Repository access verified | Allowed mechanism |
+|---|---:|---:|---|
+| Read or update registry | Yes/No | Yes/No | MCP or pending acknowledgment |
+| Create or inspect app repository | Yes/No | Yes/No/Not yet created | MCP or pending acknowledgment |
+| Configure environments, variables, or secrets | Yes/No | Yes/No | MCP or pending acknowledgment |
+| Dispatch or inspect workflows | Yes/No | Yes/No | MCP or pending acknowledgment |
+
+Adapt the rows to the actual plan. A connected server is not sufficient by itself: both the operation and target repository must be supported. Do not proceed until this matrix is reported.
+
+## Fail-Closed Fallback Rule
+
+Never silently fall back from MCP to `gh`, `git`, or raw GitHub HTTP calls. Consolidate every unsupported or access-blocked operation known during preflight into one fallback request that:
+
+1. States each exact operation.
+2. States the missing MCP toolset or exact repository-access error for that operation.
+3. States the proposed fallback mechanism.
+4. Waits for one user acknowledgment covering the complete stated fallback plan.
+
+Ask again only if a materially different fallback is discovered later. Do not interpret the acknowledgment as approval for unlisted operations, and continue using MCP for every supported, access-verified action.
+
+## Fresh Repository Access Gate
+
+Repository creation may require an acknowledged CLI fallback when the MCP server does not expose that capability. Immediately after creating a repository:
+
+1. Re-run the MCP repository-read check for the new `<owner>/<repo>`.
+2. If it succeeds, update the matrix and use MCP for all supported follow-on actions.
+3. If it returns `404`, inspect the installation inventory. When the organization installation uses selected repositories, explain that the new repository must be added to the GitHub App installation and stop GitHub work until access is granted.
+4. Re-run the repository-read check after access is changed. Do not route MCP-supported writes through CLI to bypass a missing installation grant.
 
 ## Required Inputs
 
@@ -65,12 +101,14 @@ Never fabricate a repository, issue number, PR number, or run ID. If it cannot b
 ## Workflow
 
 1. Confirm the target repository and the exact object/action requested.
-2. Discover the relevant GitHub MCP tool(s) for that action (see [Discover Available Tools First](#discover-available-tools-first)).
-3. For a read action, call the tool and return the result.
+2. Complete discovery, installation inspection, repository-access probes, and the capability matrix.
+3. For a read action, call the MCP tool and return the result.
 4. For a write action, state clearly what will be created/changed and where, then apply the guardrail above: proceed directly for easily-reversible actions, or get explicit confirmation first for hard-to-reverse ones.
-5. Call the tool with the confirmed inputs.
-6. Report the result with a link to the affected GitHub object (issue/PR/release/run URL) and a one-line summary of what changed.
-7. If the tool call fails, report the exact error and do not retry with elevated scope or a different credential path.
+5. Call the MCP tool with the confirmed inputs.
+6. If MCP lacks a capability or repository access, apply the consolidated fail-closed fallback rule before using another mechanism.
+7. After a fallback creates a fresh repository, complete the fresh repository access gate before continuing.
+8. Report the result with a link to the affected GitHub object (issue/PR/release/run URL) and a one-line summary of what changed.
+9. If the MCP call fails, report the exact error and do not retry with elevated scope or a different credential path.
 
 ## Common Recipes
 
@@ -94,7 +132,12 @@ Return:
 ## Quality Checklist
 
 - [ ] Correct repository and object confirmed before acting
-- [ ] Used a GitHub MCP tool discovered via tool search, not a guessed tool name
+- [ ] Inspected the complete callable-tool inventory, including deferred GitHub MCP tools
+- [ ] Inspected connected accounts/installations and probed every existing target repository
+- [ ] Reported a per-operation capability and access matrix before GitHub work
+- [ ] Used GitHub MCP for every supported, access-verified action
+- [ ] Consolidated known fallbacks into one request and obtained acknowledgment before use
+- [ ] Verified MCP access after creating a fresh repository
 - [ ] Hard-to-reverse actions were confirmed with the user before execution
 - [ ] No secrets, tokens, or credentials appear in the output
 - [ ] Result includes a link to the affected GitHub object
