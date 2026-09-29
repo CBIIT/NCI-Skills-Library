@@ -91,7 +91,11 @@ Then do this:
 - if GitHub Pages was selected, prepare the repository for GitHub Pages and deploy the static site there
 - if AWS Lambda / managed service was selected, load the shared [cloud-one-deploy.md](../cicd/cloud-one-deploy.md) foundation and invoke the deployment skill matching the selected language: [cloud-one-python-deploy.md](../cicd/cloud-one-python-deploy.md) for Python or [cloud-one-nodejs-deploy.md](../cicd/cloud-one-nodejs-deploy.md) for Node.js. Deploy only to the Cloud One Development non-production tier through `https://iam.cancer.gov/`
 
-For any GitHub-side action in this flow (creating the repository, updating `registry.json`, opening a pull request, checking a workflow run), load [github-mcp-actions.md](../technology/github/github-mcp-actions.md) and prefer a connected GitHub MCP server over raw `gh`/`git` commands when one is available.
+Before the registry phase or any other GitHub-side action, load [github-mcp-actions.md](../technology/github/github-mcp-actions.md) and complete its GitHub MCP preflight gate. Do not begin registry submission, repository creation, GitHub environment configuration, pull-request work, or workflow inspection until the per-operation capability matrix has been reported.
+
+Use MCP for every supported, access-verified action. Never silently switch to `gh`, `git`, or raw GitHub HTTP calls. Consolidate all known unsupported or access-blocked operation classes into one preflight fallback request: report each exact capability or access gap and its proposed fallback, then wait for one user acknowledgment covering that stated plan. Ask again only if a materially different fallback is discovered later.
+
+For a newly created repository, immediately verify access through the MCP repository-read tool. If the connected GitHub App uses selected repositories and the new repository returns `404`, pause the GitHub workflow until the repository is added to that installation and MCP access is verified.
 
 Only support local execution, GitHub Pages, and AWS Lambda / managed-service environments in this phase.
 Do not ask about ServiceNow, Snowflake, or Power Platform yet.

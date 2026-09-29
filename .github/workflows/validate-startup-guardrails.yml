@@ -1,0 +1,31 @@
+name: validate-startup-guardrails
+
+on:
+  pull_request:
+    paths:
+      - framework/nci-startup.md
+      - framework/startup/collect_initial_info.md
+      - framework/technology/github/github-mcp-actions.md
+      - tests/test_github_mcp_guardrails.py
+      - .github/workflows/validate-startup-guardrails.yml
+  push:
+    branches:
+      - main
+    paths:
+      - framework/nci-startup.md
+      - framework/startup/collect_initial_info.md
+      - framework/technology/github/github-mcp-actions.md
+      - tests/test_github_mcp_guardrails.py
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s tests -v
