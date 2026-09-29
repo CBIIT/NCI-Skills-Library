@@ -1,7 +1,7 @@
 ---
-version: 1.0
+version: 1.1
 name: github-mcp-actions
-description: Use this skill when the user wants to perform actions directly on GitHub (issues, pull requests, comments, reviews, branches, labels, releases, workflow runs, repo settings) through a connected GitHub MCP server, instead of shelling out to `git`/`gh`. Covers discovering available GitHub MCP tools, choosing the right tool for the action, required confirmation gates for write/destructive operations, and NCI security guardrails. Trigger this skill whenever the user asks to open/comment/close/merge an issue or PR, create a branch or release, trigger a workflow, or otherwise "do something on GitHub" and a GitHub MCP server is available.
+description: Use this skill when the user wants to perform actions directly on GitHub (issues, pull requests, comments, reviews, branches, labels, releases, workflow runs, repo settings, repository OIDC configuration) through a connected GitHub MCP server, instead of shelling out to `git`/`gh`. Covers discovering available GitHub MCP tools, choosing the right tool for the action, required confirmation gates for write/destructive operations, and NCI security guardrails. Trigger this skill whenever the user asks to open/comment/close/merge an issue or PR, create a branch or release, trigger a workflow, or otherwise "do something on GitHub" and a GitHub MCP server is available.
 ---
 
 # GitHub MCP Server Actions Skill
@@ -12,7 +12,7 @@ Performs GitHub actions (read and write) through a connected GitHub MCP server r
 
 Give the agent a consistent, safe way to use GitHub MCP tools to:
 
-- read issues, PRs, files, commits, workflow runs, and repo metadata
+- read issues, PRs, files, commits, workflow runs, repo metadata, and repository OIDC subject customization
 - create or update issues, PR comments, reviews, labels, branches, and releases
 - trigger or inspect GitHub Actions workflow runs
 - manage repo settings that the connected token is authorized for
@@ -26,6 +26,7 @@ Use this skill when:
 - the user asks to create a branch, tag, or release on GitHub
 - the user asks to trigger, cancel, or check a GitHub Actions workflow run
 - the user asks to search GitHub issues/PRs/code across a repo or org
+- the user or another deployment skill needs the exact repository OIDC subject customization used for federated authentication
 
 Do not use this skill when:
 
@@ -54,6 +55,7 @@ Before the first GitHub-side action, report a compact matrix with one row per pl
 | Create or inspect app repository | Yes/No | Yes/No/Not yet created | MCP or pending acknowledgment |
 | Configure environments, variables, or secrets | Yes/No | Yes/No | MCP or pending acknowledgment |
 | Dispatch or inspect workflows | Yes/No | Yes/No | MCP or pending acknowledgment |
+| Read repository OIDC subject customization | Yes/No | Yes/No | MCP or pending acknowledgment |
 
 Adapt the rows to the actual plan. A connected server is not sufficient by itself: both the operation and target repository must be supported. Do not proceed until this matrix is reported.
 
@@ -90,7 +92,7 @@ Never fabricate a repository, issue number, PR number, or run ID. If it cannot b
 
 ## Guardrails
 
-- **Read actions are low-risk and can proceed without confirmation**: viewing issues/PRs, listing workflow runs, reading files, searching code.
+- **Read actions are low-risk and can proceed without confirmation**: viewing issues/PRs, listing workflow runs, reading files, searching code, and reading repository OIDC subject customization.
 - **Write actions that are easily reversible** (opening an issue, adding a label, posting a draft PR) may proceed once the required inputs are confirmed, but summarize what will be created before calling the tool.
 - **Actions that are hard to reverse or affect shared state require explicit user confirmation before calling the tool**, including: commenting on an issue/PR, merging or closing a PR, closing an issue, deleting a branch or tag, creating or publishing a release, dismissing a review, force-pushing, or changing repo settings/permissions.
 - Never use a GitHub MCP tool to bypass branch protection, required reviews, or status checks. If a write action is blocked by a repo rule, report the block — do not look for a workaround.
@@ -119,6 +121,7 @@ Never fabricate a repository, issue number, PR number, or run ID. If it cannot b
 - **Create a branch**: confirm repo and base branch, then create.
 - **Trigger a workflow run**: confirm the workflow file, ref, and inputs, then dispatch; poll run status without an interactive log viewer.
 - **Create a release**: confirm repo, tag, target commit/branch, and release notes, get explicit confirmation, then publish.
+- **Read repository OIDC subject customization**: confirm the repository, then call the dedicated tool equivalent to `get_repository_oidc_customization`. Preserve and report the returned `use_default` and `include_claim_keys` fields exactly. If the capability is unavailable, apply the fail-closed fallback rule; never infer or construct the subject template from repository metadata.
 
 ## Output
 
@@ -141,3 +144,4 @@ Return:
 - [ ] Hard-to-reverse actions were confirmed with the user before execution
 - [ ] No secrets, tokens, or credentials appear in the output
 - [ ] Result includes a link to the affected GitHub object
+- [ ] Repository OIDC subject customization was read through the dedicated capability and never inferred
