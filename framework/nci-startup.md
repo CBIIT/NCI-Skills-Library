@@ -65,6 +65,8 @@ Whenever the assistant needs feedback from the user — a numbered question, an 
 
 If the user chooses a Web Page during startup, invoke the hello-world-web-app skill to create the minimal local baseline. If the user chooses REST API Interface during startup, invoke the hello-world-api skill to create the minimal local baseline. If the user chooses MCP Server during startup, invoke the hello-world-mcp-server skill to create the minimal local baseline. If the user chooses Local Command Line Script during startup, invoke the hello-world-cli skill to create the minimal local baseline; this app type is local-only and skips registry registration and cloud deployment. After that baseline is verified, continue with NCI Skills Registry registration and optional AWS dev deployment if needed.
 
+Whenever the startup flow needs to perform an action on GitHub itself — creating or verifying a repository, committing or updating `registry.json`, opening a pull request, or checking a workflow run — load [github-mcp-actions.md](technology/github/github-mcp-actions.md) and use a connected GitHub MCP server for that action when one is available, following its confirmation gates for hard-to-reverse writes. Fall back to `gh`/`git` CLI commands only when no GitHub MCP server is connected.
+
 ## Repository Access Rule
 
 This bootstrap must operate in environments without Git or GitHub CLI installed. The AI should access the required repository files directly from the GitHub repository source, not by cloning, fetching, or invoking `git` or `gh` commands.
@@ -81,5 +83,6 @@ See also:
 
 - [NCI Skill Registration](startup/nci-skill-registration.md)
 - [Hello World Web App](startup/hello-world-web-app.md)
+- [GitHub MCP Actions](technology/github/github-mcp-actions.md)
 - [NCI-Skills-Library](https://github.com/CBIIT/NCI-Skills-Library)
 - [NCI Skills Registry](https://github.com/CBIIT/NCI-Skills-Registry)
