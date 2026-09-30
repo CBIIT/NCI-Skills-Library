@@ -23,7 +23,7 @@ Work only in the NCI Cloud One Development non-production tier. GitHub Actions i
 - Never print, persist, or commit temporary AWS credentials. GitHub Actions uses OIDC and does not require a local AWS login for a normal deployment.
 - Create and inspect a dry-run CloudFormation change set before executing deployment.
 - Treat deleting or replacing an existing role or stack as destructive. Only replace a role created during the current workflow that has never been successfully used; otherwise stop and escalate.
-- Obtain explicit user approval immediately before attaching `PowerUserAccess` or any equivalent broad managed policy.
+- Complete read-only preflight first, then obtain one bundled user approval immediately before the first gated mutation when role creation, broad managed-policy attachment, or limited cleanup is required. Do not split known actions into separate approval requests.
 
 ## Shared inputs
 
@@ -38,6 +38,26 @@ Collect or derive:
 7. Deploy-role name, normally `power-user-<repo-slug>-github-actions-dev`.
 
 Keep IAM role names at or below 64 characters. Shorten the app slug, not the required `power-user` prefix or the `nci-ai-` repository prefix.
+
+## Minimize and bundle approvals
+
+Treat an explicit request to deploy the application to the selected Development account as authorization for routine, in-scope work: read-only discovery, application and workflow edits, GitHub environment configuration, tests, SAM validation and build, commits and pushes, dry-run creation and inspection, execution of a reviewed non-destructive change set, smoke tests, and deployment-record updates. Do not ask the user to reconfirm each step.
+
+Before requesting any approval, finish all available read-only preflight and resolve the exact account, repository, environment, stack, role, OIDC subject, permission boundary, policies, endpoint exposure, and expected CloudFormation resources.
+
+If the deploy role is absent or another known gated action is required, ask once, immediately before the first such mutation, for a single approval envelope that identifies:
+
+- the exact Development account, repository, environment, stack, and role;
+- the exact OIDC trust subject and permission boundary;
+- every broad or local managed policy to attach;
+- whether the endpoint will be public;
+- execution of the reviewed change set only when it contains the expected non-destructive resources;
+- deletion and recreation only of an invalid, unused role created during the current run; and
+- deletion only of an empty failed stack created during the current run.
+
+After approval, perform every covered action without additional conversational confirmations. Reusing an existing role whose trust, boundary, and policies already match requires no new IAM approval. A fallback that uses a different authorized tool but keeps the same target, permissions, and effects is a notification, not a new approval; honor any user-requested fallback logging.
+
+Stop and obtain a new approval only when new evidence introduces a material change outside the envelope: a different account, region, environment, or security posture; production deployment; modification or deletion of pre-existing resources; an unexpected CloudFormation deletion or replacement; undisclosed public exposure; external-team contact or ticket submission; or a fallback that materially expands scope or impact. Runtime permission dialogs imposed by the execution environment are separate and cannot always be bundled.
 
 ## Authenticate and verify the target
 
@@ -147,7 +167,7 @@ aws iam create-role \
   --profile <cloud-one-profile>
 ```
 
-Immediately before attaching `PowerUserAccess`, explain that it grants broad deployment permissions constrained by the permission boundary and exact OIDC trust, then obtain explicit user approval. After approval, attach the policies used by the Cloud One PowerUser model:
+Do not attach `PowerUserAccess` until the bundled approval envelope identifies this exact role and policy set and explains that broad deployment permissions remain constrained by the permission boundary and exact OIDC trust. After that single approval, attach the policies used by the Cloud One PowerUser model without requesting separate confirmations:
 
 ```bash
 aws iam attach-role-policy \
@@ -238,7 +258,7 @@ Once successful, obtain the application URL from stack outputs or the workflow l
 | `iam:CreateRole` is denied for a SAM-generated role | Generated role lacks the `power-user` prefix or boundary | Define the Lambda execution role explicitly with both requirements. |
 | CloudFormation requests IAM acknowledgement | Template assigns a role name | Deploy with `CAPABILITY_NAMED_IAM`. |
 | `/Stage/` works but `/dev/` returns 403 | SAM synthesized a duplicate stage | Set `OpenApiVersion: '3.0.1'` on the `AWS::Serverless::Api`. |
-| Initial stack is `ROLLBACK_COMPLETE` | A resource failed during stack creation | Inspect events, fix the cause, obtain authorization before deleting the failed stack, wait for deletion, and redeploy. |
+| Initial stack is `ROLLBACK_COMPLETE` | A resource failed during stack creation | Inspect events and fix the cause. Delete and retry without another confirmation only when the stack is empty, was created during the current run, and cleanup was included in the approval envelope; otherwise obtain approval. |
 | SAM setup appears stuck | Slow fresh runner setup | Wait up to 10 minutes; cancel and retry once if there is still no progress. |
 | Explicit SCP deny on API Gateway creation | Organization policy blocks the operation | Capture the denial and use an approved alternative only after confirming the restriction. |
 | `No changes to deploy` | Template and package are unchanged | Treat as success when the existing stack is healthy. |
