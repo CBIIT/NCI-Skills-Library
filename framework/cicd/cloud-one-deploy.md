@@ -24,6 +24,7 @@ Work only in the NCI Cloud One Development non-production tier. GitHub Actions i
 - Create and inspect a dry-run CloudFormation change set before executing deployment.
 - Treat deleting or replacing an existing role or stack as destructive. Only replace a role created during the current workflow that has never been successfully used; otherwise stop and escalate.
 - Complete read-only preflight first, then obtain one bundled user approval immediately before the first gated mutation when role creation, broad managed-policy attachment, or limited cleanup is required. Do not split known actions into separate approval requests.
+- Treat user-selected tooling such as MCP-only or no-CLI operation as a constraint for that run, not as a permanent platform rule. Command examples describe equivalent operations and do not override the user's tool constraint.
 
 ## Shared inputs
 
@@ -59,6 +60,31 @@ After approval, perform every covered action without additional conversational c
 
 Stop and obtain a new approval only when new evidence introduces a material change outside the envelope: a different account, region, environment, or security posture; production deployment; modification or deletion of pre-existing resources; an unexpected CloudFormation deletion or replacement; undisclosed public exposure; external-team contact or ticket submission; or a fallback that materially expands scope or impact. Runtime permission dialogs imposed by the execution environment are separate and cannot always be bundled.
 
+## Bind deployment identity and pass preflight
+
+Before diagnosing a failure or mutating AWS or GitHub, bind the deployment to one exact identity tuple:
+
+```text
+GitHub repository + workflow + environment
+→ AWS account + region + deploy role
+→ CloudFormation stack
+→ deployed endpoint
+```
+
+Verify evidence against this tuple. A workflow run, stack, API, WAF, role, or endpoint belonging to another repository or stack is unrelated evidence and must not drive remediation. Check whether the intended stack actually exists; do not infer deployment state from similarly named resources.
+
+Before the first workflow dispatch, require all of the following:
+
+- GitHub repository access and the exact repository OIDC customization are verified.
+- The `dev` environment exists.
+- `AWS_REGION=us-east-1` and the intended `STACK_NAME` are present at the environment level.
+- `AWS_DEPLOY_ROLE_ARN` is present and identifies the verified repository/environment-scoped role.
+- The role trust, permission boundary, and attached policies match the selected account and repository.
+- The workflow and SAM template target the same region, stack, environment, and endpoint architecture.
+- Local tests, `sam validate --lint`, and `sam build` pass.
+
+Do not dispatch a workflow merely to discover missing configuration. Fix incomplete preflight first. After dispatch, inspect only runs for the bound repository, workflow, ref, and inputs.
+
 ## Authenticate and verify the target
 
 For a normal deployment, skip local IAM login. GitHub Actions authenticates to AWS through the repository's OIDC deploy role. Confirm that the `dev` GitHub environment already contains the correct `AWS_DEPLOY_ROLE_ARN`, `AWS_REGION`, and `STACK_NAME`, then let the workflow validate the target account.
@@ -67,9 +93,11 @@ Open `https://iam.cancer.gov/` in the IDE's integrated browser only when the acc
 
 If AWS CLI commands are required for account or role setup, run them in the IDE's integrated terminal. The integrated browser cannot execute AWS CLI commands or replace their terminal output. Do not copy credentials into the repository or GitHub settings.
 
-If the Development account does not exist, request it at:
+If the Development account does not exist and the user permits external intake, provide this request link:
 
 `https://service.cancer.gov/ncisp?id=nci_sc_cat_item&sys_id=ef2bfbaf1bb49810abf0ddb6bc4bcbf4`
+
+If the user's objective forbids external input, report the missing account as a blocker; do not open a ticket or contact another team. A missing deploy role is not a missing account: inspect the account prerequisites and use the self-service role workflow below when the current identity is authorized.
 
 This workflow does not provision Cloud One accounts or authorize production deployment. Once the account and deploy role already exist, do not open the IAM portal as part of the deployment.
 
@@ -224,6 +252,8 @@ gh secret set AWS_DEPLOY_ROLE_ARN --env dev -R <owner>/<repo>
 ```
 
 Allow `gh secret set` to prompt for the ARN. Do not put credentials in command arguments. The role ARN is not a credential, but the prompt preserves the secret-setting pattern.
+
+These commands are CLI examples, not a requirement to use `gh`. Use an access-verified GitHub MCP capability or another user-authorized interface when selected for the run. After setting the values, read back the environment variables and secret metadata and complete the pre-dispatch gate; never use a failed workflow run as the first configuration check.
 
 ## Review, deploy, and verify
 
