@@ -17,20 +17,27 @@ The repository must contain:
 - `template.yaml` using a supported Python Lambda runtime.
 - `requirements.txt`.
 - `.github/workflows/deploy.yml`.
-- Local tests or smoke checks for the root and `/health` routes.
+- Local tests for the root and `/health` routes, including an API Gateway v2/Lambda Function URL event when Function URL architecture is selected.
 
-## Boundary-safe SAM template
+## Choose the endpoint architecture first
+
+Select the endpoint before writing the SAM template:
+
+| Requirement | Architecture |
+|---|---|
+| Simple public Development web app or API that needs only HTTPS invocation | **Lambda Function URL** |
+| Authentication or authorization at the gateway, request validation, throttling, usage plans, gateway-managed routing, or another explicit API management feature | **API Gateway**, only after confirming the account permits it |
+| Private or sensitive application that cannot safely use a public URL | Do not use `AuthType: NONE`; select an approved authenticated architecture |
+
+For a simple public Development application, use a Lambda Function URL by default. Do not deploy API Gateway first merely to discover a known organizational restriction. Record public exposure in the approval envelope.
+
+## Boundary-safe Function URL SAM template
 
 Cloud One PowerUser guardrails can reject SAM-generated roles. Define the Lambda execution role explicitly with the required name prefix and permission boundary:
 
 ```yaml
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-
-Parameters:
-  ApiStageName:
-    Type: String
-    Default: dev
 
 Globals:
   Function:
@@ -62,39 +69,28 @@ Resources:
                   - logs:PutLogEvents
                 Resource: !Sub arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:*
 
-  AppApi:
-    Type: AWS::Serverless::Api
-    Properties:
-      StageName: !Ref ApiStageName
-      OpenApiVersion: '3.0.1'
-
   AppFunction:
     Type: AWS::Serverless::Function
     Properties:
       Handler: function.lambda_handler
       CodeUri: .
       Role: !GetAtt AppFunctionExecutionRole.Arn
-      Events:
-        Root:
-          Type: Api
-          Properties:
-            Path: /
-            Method: ANY
-            RestApiId: !Ref AppApi
-        Proxy:
-          Type: Api
-          Properties:
-            Path: /{proxy+}
-            Method: ANY
-            RestApiId: !Ref AppApi
+      FunctionUrlConfig:
+        AuthType: NONE
+        InvokeMode: BUFFERED
 
 Outputs:
-  AppApiUrl:
-    Description: API Gateway endpoint URL
-    Value: !Sub https://${AppApi}.execute-api.${AWS::Region}.amazonaws.com/${ApiStageName}/
+  AppUrl:
+    Description: Public Lambda Function URL
+    Value: !GetAtt AppFunctionUrl.FunctionUrl
+  HealthCheckUrl:
+    Description: Public health-check URL
+    Value: !Sub '${AppFunctionUrl.FunctionUrl}health'
 ```
 
-Keep `OpenApiVersion: '3.0.1'` to avoid a duplicate hard-coded `Stage` stage. Grant only the additional runtime permissions the application needs.
+SAM synthesizes the Function URL and public invoke permissions. The dry-run review must contain only the expected execution role, function, URL, and invoke permissions. Grant only additional runtime permissions the application needs.
+
+If requirements select API Gateway, add the API resource and both `/` and `/{proxy+}` events, use `OpenApiVersion: '3.0.1'`, add an `ApiStageName` parameter, and pass that parameter from the workflow. Confirm API Gateway creation is permitted before dispatching the deployment.
 
 ## GitHub Actions workflow
 
@@ -174,8 +170,7 @@ jobs:
             --resolve-s3 \
             --no-fail-on-empty-changeset \
             --no-execute-changeset \
-            --capabilities CAPABILITY_NAMED_IAM \
-            --parameter-overrides ApiStageName='${{ inputs.environment }}'
+            --capabilities CAPABILITY_NAMED_IAM
 
       - name: Deploy
         if: ${{ !inputs.dry_run }}
@@ -185,8 +180,7 @@ jobs:
             --region "$AWS_REGION" \
             --resolve-s3 \
             --no-fail-on-empty-changeset \
-            --capabilities CAPABILITY_NAMED_IAM \
-            --parameter-overrides ApiStageName='${{ inputs.environment }}'
+            --capabilities CAPABILITY_NAMED_IAM
 ```
 
 Use `CAPABILITY_NAMED_IAM` because the template assigns an explicit execution-role name.
@@ -202,13 +196,15 @@ sam validate --lint
 sam build
 ```
 
-Then follow the shared foundation to verify or create the deploy role, configure the GitHub `dev` environment, run and inspect the dry deployment, execute the reviewed change set, and smoke-test the root and `/health` routes.
+Then follow the shared foundation to verify or create the deploy role, configure and read back the GitHub `dev` environment, pass the hard pre-dispatch gate, run and inspect the dry deployment, execute the reviewed change set, and smoke-test the exact root and `/health` URLs from the stack outputs. Function URLs have no stage-path prefix.
 
 ## Python-specific failure checks
 
 - Import failure: confirm required packages are present in `requirements.txt` and included in the SAM build artifact.
 - Handler failure: confirm the SAM handler matches `<module>.<function>`, normally `function.lambda_handler`.
 - Runtime rejected by SAM or Lambda: select a supported Python runtime for the target account and align the GitHub Actions Python version.
-- API Gateway route mismatch: keep both `/` and `/{proxy+}` events and test the `/dev/` stage explicitly.
+- Function URL returns 403: confirm the SAM-generated URL and public invoke permissions exist and that public exposure was intended.
+- Function URL handler mismatch: test with an API Gateway v2 payload (`version: "2.0"`) and confirm the adapter handles the root path and `/health`.
+- API Gateway route mismatch, when API Gateway was intentionally selected: keep both `/` and `/{proxy+}` events, retain `OpenApiVersion: '3.0.1'`, and test the configured stage explicitly.
 
 Do not treat a successful SAM build as deployment success. Apply every completion criterion in the shared foundation.
