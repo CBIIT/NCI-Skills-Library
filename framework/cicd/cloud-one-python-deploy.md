@@ -1,6 +1,6 @@
 ---
 name: cloud-one-github-actions-lambda-deployment
-description: 'Deploy a Python Lambda application to NCI Cloud One Development through GitHub Actions and AWS SAM. Use for Python applications that need the shared Cloud One OIDC, permission-boundary, dry-run, and verification controls. Do not use for Node.js applications or production deployment.'
+description: 'Deploy a Python Lambda application to NCI Cloud One Development through GitHub Actions and AWS SAM. Use for Python applications that need the shared Cloud One OIDC, permission-boundary, MCP-first GitHub, dry-run, registry, and verification controls. Do not use for Node.js or Java applications or production deployment.'
 argument-hint: 'Provide app name, GitHub repository (owner/repo), and Cloud One Development account'
 user-invocable: true
 ---

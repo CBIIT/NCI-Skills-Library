@@ -37,6 +37,24 @@ class GitHubMcpGuardrailTest(unittest.TestCase):
         self.assertIn("Inspect deferred tools", skill)
         self.assertIn("one user acknowledgment", skill)
 
+    def test_cloud_one_foundation_prefers_mcp_and_reconciles_registry(self):
+        foundation = self.read("framework/cicd/cloud-one-deploy.md")
+
+        self.assertIn("Use the NCI GitHub MCP server for every supported GitHub operation", foundation)
+        self.assertIn("plan_source_publish", foundation)
+        self.assertIn("plan_deployment(repository, execute=true)", foundation)
+        self.assertIn("## Reconcile the application registry", foundation)
+        self.assertIn("plan_json_patch", foundation)
+
+    def test_java_deployment_skill_uses_shared_foundation(self):
+        java_skill = self.read("framework/cicd/cloud-one-java-deploy.md")
+
+        self.assertIn("shared [Cloud One deployment foundation](cloud-one-deploy.md)", java_skill)
+        self.assertIn("maven.compiler.release=21", java_skill)
+        self.assertIn("BuildMethod: makefile", java_skill)
+        self.assertIn("mvn --batch-mode verify", java_skill)
+        self.assertIn("Runtime: java21", java_skill)
+
 
 if __name__ == "__main__":
     unittest.main()

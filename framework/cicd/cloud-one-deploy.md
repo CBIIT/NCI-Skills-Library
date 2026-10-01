@@ -1,6 +1,6 @@
 ---
 name: cloud-one-github-actions-deployment-foundation
-description: 'Shared NCI Cloud One Development deployment controls for GitHub Actions and AWS SAM. Use as the required foundation for the language-specific Python and Node.js Cloud One deployment skills; it covers account verification, exact OIDC trust, permission boundaries, GitHub environments, dry-run review, execution, and smoke-test completion.'
+description: 'Shared NCI Cloud One Development deployment controls for GitHub Actions and AWS SAM. Use as the required foundation for the language-specific Python, Node.js, and Java Cloud One deployment skills; it covers MCP-first GitHub automation, account verification, exact OIDC trust, permission boundaries, dry-run review, execution, registry reconciliation, and smoke-test completion.'
 argument-hint: 'Provide GitHub repository (owner/repo), Cloud One Development account, runtime skill, and stack name'
 user-invocable: false
 ---
@@ -11,6 +11,7 @@ Apply these shared controls to supported language-specific Cloud One deployment 
 
 - [Python Lambda deployment](cloud-one-python-deploy.md)
 - [Node.js Lambda deployment](cloud-one-nodejs-deploy.md)
+- [Java Lambda deployment](cloud-one-java-deploy.md)
 
 Work only in the NCI Cloud One Development non-production tier. GitHub Actions is the deployment mechanism and authenticates to AWS through GitHub OIDC; never store AWS access keys in GitHub.
 
@@ -24,7 +25,7 @@ Work only in the NCI Cloud One Development non-production tier. GitHub Actions i
 - Create and inspect a dry-run CloudFormation change set before executing deployment.
 - Treat deleting or replacing an existing role or stack as destructive. Only replace a role created during the current workflow that has never been successfully used; otherwise stop and escalate.
 - Complete read-only preflight first, then obtain one bundled user approval immediately before the first gated mutation when role creation, broad managed-policy attachment, or limited cleanup is required. Do not split known actions into separate approval requests.
-- Treat user-selected tooling such as MCP-only or no-CLI operation as a constraint for that run, not as a permanent platform rule. Command examples describe equivalent operations and do not override the user's tool constraint.
+- Use the NCI GitHub MCP server for every supported GitHub operation when its tools are callable. Command examples describe fallbacks and do not authorize bypassing MCP with `gh`, `git`, a generic GitHub connector, or raw GitHub HTTP.
 
 ## Shared inputs
 
@@ -103,7 +104,11 @@ This workflow does not provision Cloud One accounts or authorize production depl
 
 ## Create or verify the GitHub repository
 
-Create the private repository only when requested and absent. Verify access and capture its immutable ID together with the organization ID:
+Create the private repository only when requested and absent. Use `get_repository_access(repository)` as an advisory installation preflight. On public repositories, do not treat false `pull` or `push` fields as definitive when the repository is otherwise accessible; actual MCP Contents operations are authoritative.
+
+Use the MCP sequence `plan_repository` → review/approve → `create_repository`. Then verify the new target with `get_repository_access`. For an existing repository, use the bounded read or other required repository operation to verify actual access.
+
+Only when the MCP server lacks the required capability, state the exact unsupported operation and obtain one fallback acknowledgment before using commands such as:
 
 ```bash
 gh repo create <owner>/<repo> --private
@@ -117,7 +122,7 @@ The language-specific skill defines the required application files, runtime, SAM
 
 ### Resolve the exact OIDC subject
 
-Do not assume the standard GitHub subject format. Query the repository first:
+Do not assume the standard GitHub subject format. Call `get_repository_oidc_customization(repository)` and preserve the returned `use_default`, `use_immutable_subject`, `sub_claim_prefix`, and `include_claim_keys` values exactly. Use a direct GitHub query only as an acknowledged fallback when that MCP capability is unavailable:
 
 ```bash
 gh api repos/<owner>/<repo>/actions/oidc/customization/sub
@@ -253,11 +258,17 @@ gh secret set AWS_DEPLOY_ROLE_ARN --env dev -R <owner>/<repo>
 
 Allow `gh secret set` to prompt for the ARN. Do not put credentials in command arguments. The role ARN is not a credential, but the prompt preserves the secret-setting pattern.
 
-These commands are CLI examples, not a requirement to use `gh`. Use an access-verified GitHub MCP capability or another user-authorized interface when selected for the run. After setting the values, read back the environment variables and secret metadata and complete the pre-dispatch gate; never use a failed workflow run as the first configuration check.
+The current NCI MCP surface does not configure environment variables or secrets. If these values are absent, identify this exact capability gap and obtain one fallback acknowledgment before using another GitHub mechanism. After setting the values, read back the environment variables and secret metadata and complete the pre-dispatch gate; never use a failed workflow run as the first configuration check.
 
 ## Review, deploy, and verify
 
-Run the language-specific tests and SAM validation before pushing. Commit and push the application and workflow, then run a dry deployment:
+Run the language-specific tests and SAM validation before publishing. Use `plan_source_publish` → review/approve → `publish_source` for an intentional atomic source batch. Use `read_repository_file` plus `plan_file_update`/`apply_file_update` for a single direct file update, or `plan_code_change`/`apply_code_change` when review through a pull request is required.
+
+Run the dry deployment with `plan_deployment(repository)` → review/approve → `dispatch_workflow`, then inspect the workflow and CloudFormation change set. Run the reviewed deployment with `plan_deployment(repository, execute=true)` → review/approve → `dispatch_workflow`. Track a known run with `get_workflow_status(repository, run_id)`.
+
+Every MCP write remains two-phase when automatic Development approval is enabled: an approved plan still requires its separate execution call. Call `approve_action` only when the returned plan is pending.
+
+Use these commands only as an acknowledged fallback when the corresponding MCP capability is unavailable:
 
 ```bash
 gh workflow run deploy.yml -R <owner>/<repo> -f environment=dev -f dry_run=true
@@ -278,6 +289,18 @@ gh api repos/<owner>/<repo>/actions/runs/<run-id> \
 ```
 
 Once successful, obtain the application URL from stack outputs or the workflow log. Require HTTP 200 from the implemented root and health routes. Record the account, region, stack, role ARN, workflow run, endpoint, and smoke-test result without recording credentials.
+
+## Reconcile the application registry
+
+After the root and `/health` checks pass, update an existing application entry in `CBIIT/NCI-Skills-Registry/registry.json` through MCP:
+
+1. Call `read_repository_file` and retain the current blob SHA.
+2. Call `plan_json_patch` with `collection: "apps"`, a selector that matches exactly one application, and the expected SHA. Record only verified deployment, endpoint, health, audience, sign-in, and sensitivity values.
+3. Review/approve and call `apply_file_update`.
+4. Read the file again. Use the new SHA for a second root-object patch that sets `updated` to the current date, then apply it.
+5. Read the final file and verify the application entry and top-level date.
+
+If no unique registry entry exists, stop and report that startup registration must be completed. Do not append or guess an identity during deployment.
 
 ## Shared failure checks
 
@@ -303,4 +326,5 @@ Deployment is complete only when:
 3. The SAM dry run was reviewed before execution.
 4. The execute run succeeded.
 5. The deployed root and health routes return HTTP 200.
-6. Deployment metadata was recorded without credentials.
+6. The existing registry entry was reconciled and verified, or its absence was reported as a blocker.
+7. Deployment metadata was recorded without credentials.
