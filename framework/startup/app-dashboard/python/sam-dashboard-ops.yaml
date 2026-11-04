@@ -1,0 +1,114 @@
+# Fragment for template.yaml. Merge these resources into the project's SAM template; do not deploy this file on its own.
+# It adds the scheduled uptime probe behind the dashboard's Operational Status section.
+#
+# Names assumed from the Cloud One Python deployment skill. If the project's names differ, rename the references here
+# instead of renaming the project's resources:
+#   AppFunction   the Lambda function that serves the app, with a FunctionUrlConfig (so AppFunctionUrl exists)
+#   AppFunctionExecutionRole   that function's role
+#
+# Also make these two small changes to existing resources:
+#   1. AppFunction: add `OPS_TABLE: !Ref OpsTable` under Environment.Variables.
+#   2. AppFunctionExecutionRole: add the policy below under Policies so the app can read the probe's summary.
+#
+#        - PolicyName: ops-status-read
+#          PolicyDocument:
+#            Version: '2012-10-17'
+#            Statement:
+#              - Effect: Allow
+#                Action:
+#                  - dynamodb:GetItem
+#                Resource: !GetAtt OpsTable.Arn
+#
+# Scope: this probe reads AWS/Lambda Function URL metrics, so it fits apps served by a Lambda Function URL. For an app
+# behind API Gateway, set APP_URL to the stage URL; synthetic availability still works, but request statistics will be zero.
+
+Resources:
+  # One item ("status") written by the uptime probe and read by the dashboard.
+  OpsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${AWS::StackName}-ops
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+
+  ProbeFunctionExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub power-user-${AWS::StackName}-probe
+      PermissionsBoundary: !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/PermissionBoundary_PowerUser
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: lambda-basic-logs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:*
+        - PolicyName: uptime-metrics
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: cloudwatch:PutMetricData
+                Resource: '*'
+                Condition:
+                  StringEquals:
+                    cloudwatch:namespace: NCI/AppDashboard
+              # GetMetricData does not support resource-level permissions.
+              - Effect: Allow
+                Action: cloudwatch:GetMetricData
+                Resource: '*'
+        - PolicyName: ops-status-write
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                Resource: !GetAtt OpsTable.Arn
+
+  # Scheduled uptime probe: checks /health every hour and summarizes CloudWatch metrics for the dashboard.
+  ProbeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: probe.handler
+      CodeUri: .
+      MemorySize: 128
+      Role: !GetAtt ProbeFunctionExecutionRole.Arn
+      Environment:
+        Variables:
+          APP_URL: !GetAtt AppFunctionUrl.FunctionUrl
+          APP_FUNCTION: !Ref AppFunction
+          METRIC_STACK: !Ref AWS::StackName
+          OPS_TABLE: !Ref OpsTable
+      Events:
+        EveryHour:
+          Type: Schedule
+          Properties:
+            Schedule: rate(1 hour)
+            Description: Uptime probe for the app dashboard
+
+# Also add these Outputs so the deploy workflow and the registry can find the dashboard:
+#
+# Outputs:
+#   DashboardUrl:
+#     Description: Application dashboard page
+#     Value: !Sub '${AppFunctionUrl.FunctionUrl}dashboard'
+#   DashboardApiUrl:
+#     Description: Application dashboard JSON API (register as dashboardApiUrl)
+#     Value: !Sub '${AppFunctionUrl.FunctionUrl}api/dashboard'

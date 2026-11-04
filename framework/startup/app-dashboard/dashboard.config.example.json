@@ -1,0 +1,11 @@
+{
+  "id": "my-app",
+  "name": "My App",
+  "description": "One-line description of the application",
+  "version": "0.1.0",
+  "owner": "Owner Name",
+  "repository": "https://github.com/CBIIT/nci-ai-my-app",
+  "appType": "website",
+  "framework": "Flask",
+  "skillsUsed": ["nci-startup", "hello-world-web-app", "app-dashboard"]
+}

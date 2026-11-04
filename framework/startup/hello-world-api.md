@@ -53,6 +53,7 @@ Return:
 3. a smoke-test validation result
 4. the project summary and next steps
 5. any runtime or environment prerequisites that must be installed first
+6. the dashboard page URL and dashboard API URL (see [app-dashboard](app-dashboard.md))
 
 ## Required Guardrails
 
@@ -78,6 +79,10 @@ Return:
 9. Verify both routes locally with `curl` (or an equivalent HTTP request) and confirm the root route returns the expected JSON body and the health route returns HTTP 200 before reporting success.
 10. After the user explicitly confirms the local response, summarize the running URL and what to do next, and allow the deployment phase to begin.
 11. If the app is targeted for AWS Lambda or managed services, keep the code compatible with a later deploy step without making the initial API overly complex.
+
+## Dashboard Requirement
+
+Every generated REST API also exposes `GET /dashboard` (an HTML page) and `GET /api/dashboard` (JSON), in addition to `GET /` and `GET /health`. Invoke the [app-dashboard](app-dashboard.md) skill after the two baseline routes work and before asking the user to confirm. During local verification, `curl` `/api/dashboard` as well and confirm `schemaVersion` is `1` and `health.status` is `ok`. `/health` must remain unchanged because the registry's `healthCheckUrl` depends on it.
 
 ## Metadata Variables
 

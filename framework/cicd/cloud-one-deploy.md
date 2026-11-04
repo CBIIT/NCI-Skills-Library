@@ -290,12 +290,21 @@ gh api repos/<owner>/<repo>/actions/runs/<run-id> \
 
 Once successful, obtain the application URL from stack outputs or the workflow log. Require HTTP 200 from the implemented root and health routes. Record the account, region, stack, role ARN, workflow run, endpoint, and smoke-test result without recording credentials.
 
+## Dashboard in the deploy workflow
+
+Web app, REST API, and MCP server projects include the [app-dashboard](../startup/app-dashboard.md) templates. Handle them in the deploy workflow as follows:
+
+1. Run the language tests with JUnit XML output into `dashboard-data/junit.xml`. For Python projects, also run `pip install pip-audit` and `pip-audit -r requirements.txt -f json -o dashboard-data/pip-audit.json || true`; findings appear on the dashboard rather than failing the deploy.
+2. Run `python scripts/build_dashboard_snapshot.py` before `sam build`, with `ENVIRONMENT`, `STACK_NAME`, and `AWS_REGION` set from the workflow's environment variables. Give the job `permissions: issues: read`, `actions: read`, and `security-events: read` (the last two feed deploy history and Dependabot findings) and pass the automatic `GITHUB_TOKEN`; do not add a personal access token.
+3. Make sure the deployment package includes `dashboard.py` or `dashboard.mjs`, `dashboard.html`, and `dashboard-data/snapshot.json`. For Python apps, also include `ops_status.py` and `probe.py`, and merge `python/sam-dashboard-ops.yaml` from the [app-dashboard](../startup/app-dashboard.md) templates into `template.yaml` so the scheduled uptime probe, its table, and its role deploy with the app. The dry run should show those resources as additions and the app function as a modification.
+4. After deployment, require HTTP 200 from `<AppApiUrl>/dashboard` and from `<AppApiUrl>/api/dashboard`, and check that the JSON has `schemaVersion` `1` and `health.status` `ok`. Under API Gateway the URLs include the stage prefix (for example `/dev/dashboard`); Function URLs have no prefix. For Python apps with the probe, do not wait for it: report that Operational Status shows Unknown until the first scheduled run (within one schedule interval), then confirm `operations.probe.lastCheck.ok` is `true` on a later check.
+
 ## Reconcile the application registry
 
-After the root and `/health` checks pass, update an existing application entry in `CBIIT/NCI-Skills-Registry/registry.json` through MCP:
+After the root, `/health`, `/dashboard`, and `/api/dashboard` checks pass, update an existing application entry in `CBIIT/NCI-Skills-Registry/registry.json` through MCP:
 
 1. Call `read_repository_file` and retain the current blob SHA.
-2. Call `plan_json_patch` with `collection: "apps"`, a selector that matches exactly one application, and the expected SHA. Record only verified deployment, endpoint, health, audience, sign-in, and sensitivity values.
+2. Call `plan_json_patch` with `collection: "apps"`, a selector that matches exactly one application, and the expected SHA. Record only verified deployment, endpoint, health, audience, sign-in, and sensitivity values, plus `dashboardApiUrl` set to the verified absolute URL of `/api/dashboard`.
 3. Review/approve and call `apply_file_update`.
 4. Read the file again. Use the new SHA for a second root-object patch that sets `updated` to the current date, then apply it.
 5. Read the final file and verify the application entry and top-level date.
@@ -325,6 +334,6 @@ Deployment is complete only when:
 2. The language-specific local checks passed.
 3. The SAM dry run was reviewed before execution.
 4. The execute run succeeded.
-5. The deployed root and health routes return HTTP 200.
+5. The deployed root and health routes return HTTP 200, and for web app, REST API, and MCP server projects so do `/dashboard` and `/api/dashboard`.
 6. The existing registry entry was reconciled and verified, or its absence was reported as a blocker.
 7. Deployment metadata was recorded without credentials.

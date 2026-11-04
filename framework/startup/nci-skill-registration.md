@@ -40,6 +40,7 @@ Do not use this skill when:
 - Deployment status: `local-only`, `dev`, `qa`, `stage`, or `production`.
 - URL for each deployed environment; local-only skills must not claim deployed URLs.
 - Optional major-change summary and release notes.
+- Optional `dashboardApiUrl`: the absolute HTTP(S) URL of the deployed app's `/api/dashboard` endpoint (see [app-dashboard](app-dashboard.md)). Record it only after the deployed endpoint returned HTTP 200 with a valid payload. Omit it for local-only or not-yet-deployed apps, and for CLI scripts.
 
 GitHub Organization membership is not required for app creation or for preparing a registry entry. It is only required if the authenticated user must write directly to the CBIIT-owned repository.
 
@@ -120,6 +121,7 @@ Never claim that a registry change was committed or merged unless the operation 
 - [ ] Existing `created_date` was preserved for an update.
 - [ ] Deployment status is one of `local-only`, `dev`, `qa`, `stage`, or `production`.
 - [ ] Environment URLs match the deployment information and use HTTP(S).
+- [ ] `dashboardApiUrl`, when present, is a verified `/api/dashboard` URL on the same deployed app.
 - [ ] Source repository is present and points to the skill's repository.
 - [ ] Version, source revision, or material-change summary is recorded when available.
 - [ ] Existing registry entries were not reformatted or changed unnecessarily.
