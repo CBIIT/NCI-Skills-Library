@@ -52,6 +52,7 @@ Return:
 3. a smoke-test validation result
 4. the project summary and next steps
 5. any runtime or environment prerequisites that must be installed first
+6. the dashboard page URL and dashboard API URL (see [app-dashboard](app-dashboard.md))
 
 ## Required Guardrails
 
@@ -78,6 +79,10 @@ Return:
 11. After the user explicitly confirms the local page, close the integrated browser page, summarize the running URL and what to do next, and allow the deployment phase to begin.
 12. If the app is targeted for GitHub Pages, keep the generated site static and prepare the repository for a GitHub Pages deployment.
 13. If the app is targeted for AWS Lambda or managed services, keep the code compatible with a later deploy step without making the initial app overly complex.
+
+## Dashboard Requirement
+
+Every generated web app also gets a dashboard page at `GET /dashboard` and a REST API at `GET /api/dashboard`. Invoke the [app-dashboard](app-dashboard.md) skill after the Hello World page works and before asking the user to verify. The dashboard is added alongside the Hello World page, not instead of it. Add a link to `dashboard` in the page header or footer, and confirm during local verification that both `/dashboard` and `/api/dashboard` respond.
 
 ## Page Design Requirements
 

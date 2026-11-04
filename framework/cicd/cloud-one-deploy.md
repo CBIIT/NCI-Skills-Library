@@ -290,6 +290,27 @@ Once successful, obtain the application URL from stack outputs or the workflow l
 | `/Stage/` works but `/dev/` returns 403 | SAM synthesized a duplicate stage | Set `OpenApiVersion: '3.0.1'` on the `AWS::Serverless::Api`. |
 | Initial stack is `ROLLBACK_COMPLETE` | A resource failed during stack creation | Inspect events and fix the cause. Delete and retry without another confirmation only when the stack is empty, was created during the current run, and cleanup was included in the approval envelope; otherwise obtain approval. |
 | SAM setup appears stuck | Slow fresh runner setup | Wait up to 10 minutes; cancel and retry once if there is still no progress. |
+## Dashboard in the deploy workflow
+
+Web app, REST API, and MCP server projects include the [app-dashboard](../startup/app-dashboard.md) templates. Handle them in the deploy workflow as follows:
+
+1. Run the language tests with JUnit XML output into `dashboard-data/junit.xml`.
+2. Run `python scripts/build_dashboard_snapshot.py` before `sam build`, with `ENVIRONMENT`, `STACK_NAME`, and `AWS_REGION` set from the workflow's environment variables. Give the job `permissions: issues: read` and pass the automatic `GITHUB_TOKEN`; do not add a personal access token.
+3. Make sure the deployment package includes `dashboard.py` or `dashboard.mjs`, `dashboard.html`, and `dashboard-data/snapshot.json`.
+4. After deployment, require HTTP 200 from `<AppApiUrl>/dashboard` and from `<AppApiUrl>/api/dashboard`, and check that the JSON has `schemaVersion` `1` and `health.status` `ok`. Under API Gateway the URLs include the stage prefix (for example `/dev/dashboard`); Function URLs have no prefix.
+
+## Reconcile the application registry
+
+After the root, `/health`, `/dashboard`, and `/api/dashboard` checks pass, update an existing application entry in `CBIIT/NCI-Skills-Registry/registry.json` through MCP:
+
+1. Call `read_repository_file` and retain the current blob SHA.
+2. Call `plan_json_patch` with `collection: "apps"`, a selector that matches exactly one application, and the expected SHA. Record only verified deployment, endpoint, health, audience, sign-in, and sensitivity values, plus `dashboardApiUrl` set to the verified absolute URL of `/api/dashboard`.
+3. Review/approve and call `apply_file_update`.
+4. Read the file again. Use the new SHA for a second root-object patch that sets `updated` to the current date, then apply it.
+5. Read the final file and verify the application entry and top-level date.
+
+If no unique registry entry exists, stop and report that startup registration must be completed. Do not append or guess an identity during deployment.
+
 | Explicit SCP deny on API Gateway creation | Organization policy blocks the operation | Capture the denial and use an approved alternative only after confirming the restriction. |
 | `No changes to deploy` | Template and package are unchanged | Treat as success when the existing stack is healthy. |
 | Missing variable or secret | GitHub environment is incomplete | Set the value on the `dev` environment and rerun. |
@@ -302,5 +323,6 @@ Deployment is complete only when:
 2. The language-specific local checks passed.
 3. The SAM dry run was reviewed before execution.
 4. The execute run succeeded.
-5. The deployed root and health routes return HTTP 200.
-6. Deployment metadata was recorded without credentials.
+5. The deployed root and health routes return HTTP 200, and for web app, REST API, and MCP server projects so do `/dashboard` and `/api/dashboard`.
+6. The existing registry entry was reconciled and verified, or its absence was reported as a blocker.
+7. Deployment metadata was recorded without credentials.

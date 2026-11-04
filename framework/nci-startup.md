@@ -65,6 +65,8 @@ Whenever the assistant needs feedback from the user — a numbered question, an 
 
 If the user chooses a Web Page during startup, invoke the hello-world-web-app skill to create the minimal local baseline. If the user chooses REST API Interface during startup, invoke the hello-world-api skill to create the minimal local baseline. If the user chooses MCP Server during startup, invoke the hello-world-mcp-server skill to create the minimal local baseline. If the user chooses Local Command Line Script during startup, invoke the hello-world-cli skill to create the minimal local baseline; this app type is local-only and skips registry registration and cloud deployment. After that baseline is verified, continue with NCI Skills Registry registration and optional AWS dev deployment if needed.
 
+For the Web Page, REST API Interface, and MCP Server types, the hello-world skill must also invoke the [app-dashboard](startup/app-dashboard.md) skill so the app exposes `GET /dashboard` and `GET /api/dashboard`. The Local Command Line Script type is excluded.
+
 ## GitHub MCP Preflight Gate
 
 Before the first GitHub-side action — including reading or updating the registry, creating or verifying a repository, committing GitHub-hosted content, opening a pull request, configuring deployment, or checking a workflow run — load [github-mcp-actions.md](technology/github/github-mcp-actions.md) and complete its GitHub MCP preflight gate.
@@ -97,6 +99,7 @@ See also:
 
 - [NCI Skill Registration](startup/nci-skill-registration.md)
 - [Hello World Web App](startup/hello-world-web-app.md)
+- [App Dashboard](startup/app-dashboard.md)
 - [GitHub MCP Actions](technology/github/github-mcp-actions.md)
 - [NCI-Skills-Library](https://github.com/CBIIT/NCI-Skills-Library)
 - [NCI Skills Registry](https://github.com/CBIIT/NCI-Skills-Registry)

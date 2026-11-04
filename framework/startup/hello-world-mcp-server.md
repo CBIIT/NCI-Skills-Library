@@ -53,6 +53,7 @@ Return:
 3. a smoke-test validation result
 4. the project summary and next steps
 5. any runtime or environment prerequisites that must be installed first
+6. the dashboard page URL and dashboard API URL when the HTTP transport is used (see [app-dashboard](app-dashboard.md))
 
 ## Required Guardrails
 
@@ -79,6 +80,10 @@ Return:
 10. Verify the server locally by invoking the `hello_world` tool with an MCP-compatible client, or by using the SDK's built-in inspector/dev tool, and confirm the response text and metadata are present before reporting success.
 11. After the user explicitly confirms the local tool response, summarize the running command and what to do next, and allow the deployment phase to begin.
 12. If the app is targeted for AWS Lambda or managed services, keep the code compatible with a later deploy step (streamable HTTP transport instead of stdio) without making the initial server overly complex.
+
+## Dashboard Requirement
+
+Every generated MCP server also serves `GET /dashboard` (HTML) and `GET /api/dashboard` (JSON) over the HTTP transport used for AWS Lambda / managed-service deployment. Invoke the [app-dashboard](app-dashboard.md) skill after the `hello_world` tool is verified. These are plain HTTP routes, not MCP tools, so the server still exposes exactly one tool. Wrap the tool with the template's `track_tool` decorator so tool calls appear in the dashboard's usage counts. A stdio-only local run has no HTTP surface; verify the dashboard by starting the server with the HTTP transport.
 
 ## Metadata Variables
 
