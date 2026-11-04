@@ -3,37 +3,88 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="nci-dashboard-template" content="2">
   <title>Application dashboard</title>
   <style>
-    :root { --nci-blue: #0f6a9c; --ink: #1a1a1a; --muted: #5c6670; --line: #dfe3e8; --ok: #1d7a46; --warn: #a65f00; --bad: #b3261e; --bg: #f5f7f9; }
+    :root { --nci-blue: #075b85; --navy: #143b55; --ink: #183143; --muted: #566a79; --line: #dce5eb; --ok: #187249; --warn: #945700; --bad: #ad302a; --none: #aebcc6; --bg: #f3f6f8; }
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: Arial, Helvetica, sans-serif; color: var(--ink); background: var(--bg); line-height: 1.45; }
-    .nci-header { display: flex; align-items: center; gap: 1.25rem; background: #fff; border-bottom: 1px solid var(--line); padding: .75rem 1.5rem; }
-    .nci-header img { display: block; height: 48px; width: auto; }
-    .nci-header__title { font-size: 1.1rem; font-weight: 700; }
-    main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1rem 2.5rem; }
-    h1 { font-size: 1.5rem; margin: 0 0 .25rem; }
-    .sub { color: var(--muted); margin: 0 0 1.25rem; }
-    .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
-    section { background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 1rem 1.1rem; }
-    section.wide { grid-column: 1 / -1; }
-    h2 { font-size: 1rem; margin: 0 0 .6rem; color: var(--nci-blue); }
+    body { margin: 0; font-family: Arial, Helvetica, sans-serif; color: var(--ink); background: var(--bg); line-height: 1.5; }
+    .nci-header { display: flex; align-items: center; gap: 1.25rem; background: #fff; border-bottom: 1px solid var(--line); padding: .8rem max(1.25rem, calc((100% - 1180px) / 2)); }
+    .nci-header img { display: block; height: 42px; width: auto; max-width: 100%; }
+    .nci-header__title { border-left: 1px solid var(--line); padding-left: 1.25rem; font-weight: 700; }
+    .nci-header__link { margin-left: auto; font-size: .88rem; font-weight: 700; white-space: nowrap; }
+    main { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem 3.5rem; }
+    .eyebrow { color: var(--nci-blue); font-size: .75rem; font-weight: 700; letter-spacing: .09em; margin: 0 0 .35rem; text-transform: uppercase; }
+    h1 { color: var(--navy); font-size: clamp(1.65rem, 3vw, 2.15rem); line-height: 1.2; margin: 0 0 .35rem; }
+    h2 { color: var(--navy); font-size: 1.3rem; line-height: 1.3; margin: 0; scroll-margin-top: 1rem; }
+    h3 { color: var(--navy); font-size: 1rem; margin: 0 0 .75rem; }
+    p { margin: .55rem 0; }
+    .sub { color: var(--muted); margin: 0; max-width: 75ch; }
+    .section-nav { display: flex; gap: .5rem; flex-wrap: wrap; margin: 1.5rem 0 .5rem; }
+    .section-nav a { background: #fff; border: 1px solid var(--line); border-radius: 999px; color: var(--navy); font-size: .83rem; font-weight: 700; padding: .4rem .8rem; text-decoration: none; }
+    .section-nav a:hover, .section-nav a:focus-visible { border-color: var(--nci-blue); color: var(--nci-blue); }
+    .section-heading { margin: 2rem 0 .8rem; }
+    .section-heading p { color: var(--muted); font-size: .9rem; margin: .2rem 0 0; }
+    .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); }
+    .card { min-width: 0; background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 1.2rem; box-shadow: 0 2px 8px rgba(20, 59, 85, .04); }
+    .wide { grid-column: 1 / -1; }
+    .glance { display: grid; gap: 1rem; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); align-items: start; }
+    @media (max-width: 860px) { .glance { grid-template-columns: minmax(0, 1fr); } }
+    .sample-banner { background: #fff3cd; border: 2px dashed #945700; color: #5a3a00; border-radius: 8px; padding: .7rem 1rem; margin: 1rem 0 0; }
+    .hero { display: flex; flex-direction: column; align-items: flex-start; gap: .9rem; }
+    .hero .badge { font-size: 1rem; padding: .35rem .95rem; }
+    .card.status-ok { border-top: 4px solid var(--ok); }
+    .card.status-attention { border-top: 4px solid var(--warn); }
+    .card.status-degraded { border-top: 4px solid var(--bad); }
+    .card.status-unknown { border-top: 4px solid var(--none); }    .hero-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .65rem; }
+    .hero-header .badge { font-size: .95rem; padding: .35rem .85rem; }
+    .meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(155px, 100%), 1fr)); gap: .8rem 1.25rem; margin-top: 1.2rem; }
+    .meta-grid dt { font-size: .78rem; }
+    .meta-grid dd { color: var(--navy); font-weight: 700; margin-top: .15rem; }
+    .reasons { color: var(--ink); margin: .9rem 0 0; padding-left: 1.2rem; }
     dl { display: grid; grid-template-columns: max-content 1fr; gap: .25rem 1rem; margin: 0; }
     dt { color: var(--muted); }
     dd { margin: 0; overflow-wrap: anywhere; }
-    table { width: 100%; border-collapse: collapse; font-size: .92rem; }
-    th, td { text-align: left; padding: .3rem .4rem; border-bottom: 1px solid var(--line); vertical-align: top; }
-    th { color: var(--muted); font-weight: 600; }
-    .pill { display: inline-block; padding: .05rem .55rem; border-radius: 999px; font-size: .8rem; font-weight: 700; color: #fff; background: var(--muted); }
-    .pill.ok, .pill.passed { background: var(--ok); }
-    .pill.degraded, .pill.skipped { background: var(--warn); }
-    .pill.bad, .pill.failed, .pill.error { background: var(--bad); }
-    .unavailable { color: var(--muted); font-style: italic; }
+    table { width: 100%; border-collapse: collapse; font-size: .87rem; }
+    th, td { text-align: left; padding: .5rem .4rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { color: var(--muted); font-size: .78rem; font-weight: 700; }
+    .pill, .badge { display: inline-block; padding: .15rem .6rem; border-radius: 999px; font-size: .78rem; font-weight: 700; color: #fff; background: var(--muted); white-space: nowrap; }
+    .ok, .passed, .success { background: var(--ok); }
+    .attention, .skipped, .warn, .cancelled { background: var(--warn); }
+    .degraded, .bad, .failed, .failure, .error { background: var(--bad); }
+    .unknown { background: #5a6873; }
+    .kpis { display: grid; gap: .75rem; grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr)); }
+    .kpi { border: 1px solid var(--line); border-top: 3px solid var(--none); border-radius: 8px; padding: .85rem; background: #fff; }
+    .kpi.ok { border-top-color: var(--ok); background: #fff; } .kpi.warn { border-top-color: var(--warn); background: #fff; } .kpi.bad { border-top-color: var(--bad); background: #fff; }
+    .kpi .label { color: var(--muted); font-size: .8rem; font-weight: 700; }
+    .kpi .value { color: var(--navy); font-size: 1.55rem; font-weight: 700; margin: .25rem 0; }
+    .kpi .note { color: var(--muted); font-size: .78rem; line-height: 1.4; }
+    .notice { border-left: 4px solid var(--warn); background: #fff7e8; color: #6b4309; padding: .65rem .8rem; border-radius: 4px; margin: .75rem 0; }
+    .strip { display: grid; grid-template-columns: repeat(24, 1fr); gap: 2px; height: 22px; margin: .35rem 0 .2rem; }
+    .strip span { border-radius: 2px; background: var(--none); }
+    .strip span.ok { background: var(--ok); } .strip span.warn { background: var(--warn); } .strip span.bad { background: var(--bad); }
+    .strip-axis { display: flex; justify-content: space-between; color: var(--muted); font-size: .75rem; }
+    .muted, .unavailable { color: var(--muted); }
+    .unavailable { font-size: .9rem; }
+    .small { font-size: .84rem; }
+    details { margin-top: .9rem; }
+    summary { cursor: pointer; color: var(--nci-blue); font-size: .9rem; font-weight: 700; }
     .scroll { max-height: 320px; overflow: auto; }
-    a { color: var(--nci-blue); }
-    footer { background: var(--nci-blue); color: #fff; text-align: center; padding: 1rem; font-size: .9rem; }
+    .counts { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: .5rem; }
+    a { color: var(--nci-blue); text-underline-offset: .15em; }
+    footer { background: var(--navy); color: #fff; text-align: center; padding: 1rem; font-size: .85rem; }
     footer a { color: #fff; }
-    #error { background: #fdecea; color: var(--bad); padding: .75rem 1rem; border-radius: 6px; margin-bottom: 1rem; }
+    #error { background: #fdecea; color: #84251f; padding: .8rem 1rem; border-radius: 6px; margin: 1rem 0; }
+    .stale-data .kpi.ok, .stale-data .kpi.warn, .stale-data .kpi.bad { border-top-color: var(--none); }
+    @media (max-width: 540px) {
+      .nci-header { flex-wrap: wrap; gap: .75rem; }
+      .nci-header img { height: 34px; }
+      .nci-header__title { padding-left: .75rem; }
+      .nci-header__link { margin-left: 0; }
+      main { padding-top: 1.4rem; }
+      dl { grid-template-columns: minmax(0, 1fr); gap: .1rem; }
+      dd { margin-bottom: .45rem; }
+    }
     [hidden] { display: none !important; }
   </style>
 </head>
@@ -41,24 +92,41 @@
   <header class="nci-header">
     <a href="https://www.cancer.gov" aria-label="National Cancer Institute home page"><img src="https://www.cancer.gov/profiles/custom/cgov_site/themes/custom/cgov/static/images/design-elements/logos/nci-logo-full.svg" alt="National Cancer Institute"></a>
     <span class="nci-header__title" id="header-title">Application dashboard</span>
+    <a class="nci-header__link" href="./">View application</a>
   </header>
   <main>
+    <p class="eyebrow">Service dashboard</p>
     <h1 id="title">Application dashboard</h1>
     <p class="sub" id="subtitle">Loading&hellip;</p>
+    <nav class="section-nav" aria-label="Dashboard sections">
+      <a href="#overview">At a glance</a>
+      <a href="#operations">Operational status</a>
+      <a href="#delivery">Delivery</a>
+      <a href="#sdlc">SDLC</a>
+      <a href="#security">Security &amp; dependencies</a>
+      <a href="#usage">Usage</a>
+    </nav>
     <div id="error" hidden role="alert"></div>
-    <div class="grid" id="grid"></div>
+    <div id="root"></div>
   </main>
-  <footer>Generated by the NCI app-dashboard skill &middot; JSON: <a id="json-link" href="api/dashboard">api/dashboard</a></footer>
+  <footer>Generated by the NCI app-dashboard skill &middot; Refreshes every minute &middot; JSON: <a id="json-link" href="api/dashboard">api/dashboard</a></footer>
 
   <script>
     // All values are inserted with textContent; never innerHTML. Relative URLs keep this working under API Gateway stage prefixes such as /dev/.
-    const grid = document.getElementById("grid");
+    const root = document.getElementById("root");
+    const REFRESH_MS = 60000;
+    const TARGET = 99.0;
+    let overallBadge = null;
 
     function el(tag, opts = {}, ...children) {
       const node = document.createElement(tag);
       if (opts.cls) node.className = opts.cls;
+      if (opts.id) node.id = opts.id;
       if (opts.text !== undefined) node.textContent = String(opts.text);
-      for (const child of children) node.append(child);
+      if (opts.title) node.title = opts.title;
+      if (opts.role) node.setAttribute("role", opts.role);
+      if (opts.label) node.setAttribute("aria-label", opts.label);
+      for (const child of children) if (child !== null && child !== undefined) node.append(child);
       return node;
     }
     function safeHref(value) {
@@ -71,79 +139,268 @@
     }
     function pill(text, tone) { return el("span", { cls: "pill " + (tone || ""), text }); }
     function value(v) { return (v === null || v === undefined || v === "") ? "—" : v; }
-    function card(title, wide) { const s = el("section", { cls: wide ? "wide" : "" }, el("h2", { text: title })); grid.append(s); return s; }
-    function unavailable(section, block) { section.append(el("p", { cls: "unavailable", text: "Not available: " + (block && block.reason ? block.reason : "no data") })); }
-    function facts(section, rows) {
+    function isUnavailable(block) { return !block || block.status === "unavailable" || block.status === "not_applicable"; }
+    function unavailable(parent, block) {
+      if (block && block.status === "not_applicable") parent.append(el("p", { cls: "unavailable" }, pill("Not Applicable", "unknown"), document.createTextNode(" " + (block.reason || ""))));
+      else parent.append(el("p", { cls: "unavailable", text: "Not available: " + (block && block.reason ? block.reason : "no data") }));
+    }
+    function heading(text, id, description) {
+      root.append(el("div", { cls: "section-heading" }, el("h2", { text, id }), description ? el("p", { text: description }) : null));
+    }
+    function grid() { const g = el("div", { cls: "grid" }); root.append(g); return g; }
+    function card(parent, title, wide) { const c = el("section", { cls: "card" + (wide ? " wide" : "") }); if (title) c.append(el("h3", { text: title })); parent.append(c); return c; }
+    function facts(parent, rows) {
       const dl = el("dl");
       for (const [k, v] of rows) { dl.append(el("dt", { text: k })); const dd = el("dd"); dd.append(v instanceof Node ? v : document.createTextNode(String(value(v)))); dl.append(dd); }
-      section.append(dl);
+      parent.append(dl);
     }
-    function table(section, headers, rows) {
+    function table(parent, headers, rows) {
       const t = el("table"); const head = el("tr");
       for (const h of headers) head.append(el("th", { text: h }));
       t.append(el("thead", {}, head));
       const body = el("tbody");
       for (const row of rows) { const tr = el("tr"); for (const cell of row) tr.append(el("td", {}, cell instanceof Node ? cell : document.createTextNode(String(value(cell))))); body.append(tr); }
-      t.append(body); section.append(el("div", { cls: "scroll" }, t));
+      t.append(body); parent.append(el("div", { cls: "scroll" }, t));
     }
-    function fmtUptime(s) { s = Math.floor(s); const d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60); return (d ? d + "d " : "") + (h || d ? h + "h " : "") + m + "m " + (s % 60) + "s"; }
+    function ago(iso) {
+      if (!iso) return "—";
+      const s = Math.round((Date.now() - Date.parse(iso)) / 1000);
+      if (!isFinite(s)) return iso;
+      if (s < -90) return "in the future";
+      if (s < 90) return "just now";
+      if (s < 5400) return Math.round(s / 60) + " min ago";
+      if (s < 129600) return Math.round(s / 3600) + " h ago";
+      return Math.round(s / 86400) + " days ago";
+    }
+    function when(iso) { return el("span", { text: ago(iso), title: iso || "" }); }
+    function pct(v) { return !Number.isFinite(v) ? "—" : (v >= 99.995 ? "100" : v.toFixed(2).replace(/\.?0+$/, "")) + "%"; }
+    function pctTone(v) { return !Number.isFinite(v) ? "" : v >= TARGET ? "ok" : "warn"; }
+    function kpi(parent, label, val, tone, note) {
+      parent.append(el("div", { cls: "kpi " + (tone || "") }, el("div", { cls: "label", text: label }), el("div", { cls: "value", text: val }), note ? el("div", { cls: "note", text: note }) : null));
+    }
+    const STATUS_TEXT = { ok: "Operational", attention: "Needs attention", degraded: "Degraded", unknown: "Unknown" };
+    const STATUS_HELP = {
+      ok: "Operational: every check the dashboard can see is passing.",
+      attention: "Needs attention: the service is answering, but something below is outside its target (for example availability under 99%, failed tests or open security findings).",
+      degraded: "Degraded: a health check is failing, so users are likely affected.",
+      unknown: "Unknown: the dashboard cannot confirm the service is healthy because monitoring data is missing, out of date or could not be read. It does not mean something is broken.",
+    };
 
-    function render(d) {
-      const app = d.app || {};
-      document.title = (app.name || "Application") + " dashboard";
-      document.getElementById("title").textContent = (app.name || "Application") + " dashboard";
-      document.getElementById("header-title").textContent = app.name || "Application dashboard";
-      document.getElementById("subtitle").textContent = (app.description || "") + (d.generatedAt ? "  ·  Updated " + d.generatedAt : "");
+    function sampleBanner(d) {
+      if (!d.sampleData) return null;
+      return el("div", { cls: "sample-banner", role: "status" }, el("strong", { text: "SAMPLE DATA. " }),
+        document.createTextNode("The Operational Status numbers on this page, and the status badge and reasons worked out from them, are made up for local preview. They are not real measurements."));
+    }
 
+    function renderHeader(d) {
+      const app = d.app || {}, dep = d.deployment || {}, sum = d.summary || {};
+      const name = app.name || "Application";
+      document.title = name + " dashboard";
+      document.getElementById("title").textContent = name + " dashboard";
+      document.getElementById("header-title").textContent = name;
+      document.getElementById("subtitle").textContent = app.description || "";
+
+      heading("At a glance", "overview", "Current service state, release, and the live checks run for this page load.");
+      const glance = el("div", { cls: "glance" }); root.append(glance);
+      const c = card(glance);
+      c.classList.add("status-" + (sum.status || "unknown"));
+      const hero = el("div", { cls: "hero" });
+      hero.append(el("span", { cls: "badge " + (sum.status || ""), text: STATUS_TEXT[sum.status] || "Unknown" }));
+      const commit = dep.commit ? dep.commit.slice(0, 7) : null;
+      const deployed = el("span", {}, when(sum.lastDeployedAt), commit ? document.createTextNode(" · commit " + commit) : null);
+      const dl = el("dl");
+      hero.append(dl);
+      const rows = [
+        ["Environment", isUnavailable(dep) ? "local" : (dep.environment || "—")],
+        ["Version", app.version],
+        ["Last deployed", isUnavailable(dep) ? "Not Applicable (not deployed from CI)" : deployed],
+        ["Dashboard refreshed", when(d.generatedAt)],
+      ];
+      for (const [k, v] of rows) { dl.append(el("dt", { text: k })); const dd = el("dd"); dd.append(v instanceof Node ? v : document.createTextNode(String(value(v)))); dl.append(dd); }
+      c.append(hero);
+      if (STATUS_HELP[sum.status]) c.append(el("p", { cls: "muted small", text: STATUS_HELP[sum.status] }));
+      if (Array.isArray(sum.reasons) && sum.reasons.length) c.append(el("ul", { cls: "reasons" }, ...sum.reasons.map(r => el("li", { text: r }))));
+      renderLive(glance, d);
+    }
+
+    function renderLive(parent, d) {
       const h = d.health || {};
-      const s1 = card("Health");
-      s1.append(pill(h.status || "unknown", h.status === "ok" ? "ok" : h.status === "degraded" ? "degraded" : "bad"));
-      if (Array.isArray(h.checks) && h.checks.length) table(s1, ["Check", "Status", "Detail"], h.checks.map(c => [c.name, pill(c.status, c.status === "ok" ? "ok" : "bad"), c.detail]));
+      const live = card(parent, "Live checks");
+      live.append(el("p", { cls: "muted small", text: "Run just now, when this page asked the app for its status." }), pill(h.status || "unknown", h.status === "ok" ? "ok" : "bad"));
+      if (Array.isArray(h.checks) && h.checks.length) table(live, ["Check", "Status"], h.checks.map(x => [
+        el("div", {}, el("strong", { text: x.name }), x.description ? el("div", { cls: "muted small", text: x.description }) : null),
+        el("div", {}, pill(x.status, x.status === "ok" ? "ok" : "bad"), x.detail ? el("div", { cls: "muted small", text: x.detail }) : null),
+      ]));
+    }
 
-      const rt = d.runtime || {};
-      facts(card("Runtime"), [["Started", rt.startedAt], ["Uptime", rt.uptimeSeconds !== undefined ? fmtUptime(rt.uptimeSeconds) : null], ["Language", rt.language], ["Framework", rt.framework]]);
+    function renderOperations(d) {
+      heading("Operational Status", "operations", "Synthetic availability and real request health. Lambda does not run as one continuous server.");
+      const g = grid();
+      const ops = d.operations;
+      const c = card(g, null, true);
+      if (isUnavailable(ops)) {
+        unavailable(c, ops);
+      } else {
+        const up = ops.uptime || {}, req = ops.requests || {}, last = (ops.probe || {}).lastCheck || {};
+        const r24 = req["24h"] || {};
+        const k = el("div", { cls: "kpis" }); c.append(k);
+        for (const w of ["24h", "7d"]) {
+          const u = up[w] || {};
+          const expected = u.checksExpected !== undefined ? u.checksExpected : u.checksRun;
+          const checkNote = u.checksRun !== undefined
+            ? value(u.checksPassed) + " of " + value(expected) + " scheduled checks passed" +
+              (u.checksExpected !== undefined && u.checksRun !== u.checksExpected ? " (" + u.checksRun + " reported)" : "")
+            : "No scheduled-check data";
+          kpi(k, "Synthetic availability " + w, pct(u.percent), pctTone(u.percent), checkNote);
+        }
+        kpi(k, "Requests without 5xx · 24h", pct(r24.successPercent), pctTone(r24.successPercent), r24.total !== undefined ? r24.total + " function-URL requests" : null);
+        kpi(k, "Latency p95 24h", r24.latencyP95Ms === null || r24.latencyP95Ms === undefined ? "—" : r24.latencyP95Ms + " ms", r24.latencyP95Ms > 3000 ? "warn" : r24.latencyP95Ms !== undefined && r24.latencyP95Ms !== null ? "ok" : "", "95% of requests were faster");
+        kpi(k, "Server errors 24h", value(r24.serverErrors), r24.serverErrors ? "warn" : r24.serverErrors === 0 ? "ok" : "", "HTTP 5xx responses");
+        kpi(k, "Lambda errors 24h", value(r24.functionErrors), r24.functionErrors ? "warn" : r24.functionErrors === 0 ? "ok" : "", "failed function invocations");
+        kpi(k, "Throttled 24h", value(r24.throttles), r24.throttles ? "warn" : r24.throttles === 0 ? "ok" : "", "rejected for lack of capacity");
 
-      const u = d.usage || {};
-      const s3 = card("Usage");
-      facts(s3, [["Scope", u.scope], ["Since", u.since], ["Requests", u.totalRequests], ["Errors (5xx)", u.errorRequests], ["Last request", u.lastRequestAt]]);
-      const routes = Object.entries(u.byRoute || {}).sort((a, b) => b[1] - a[1]);
-      if (routes.length) table(s3, ["Route", "Requests"], routes);
+        facts(c, [
+          ["Last scheduled check", el("span", {}, pill(last.ok ? "passed" : "failed", last.ok ? "ok" : "bad"), document.createTextNode(" "), when(last.at), document.createTextNode(last.latencyMs !== undefined ? " · " + last.latencyMs + " ms" : ""))],
+          ["Probe", ops.stale ? el("span", {}, pill("stale", "warn"), document.createTextNode(" last reported " + ago(ops.checkedAt))) : "every " + ((ops.probe || {}).intervalMinutes || 60) + " minutes, last reported " + ago(ops.checkedAt)],
+        ]);
+        if (ops.metrics && isUnavailable(ops.metrics)) unavailable(c, ops.metrics);
 
+        if (Array.isArray(ops.hourly24h) && ops.hourly24h.length) {
+          c.append(el("p", { cls: "muted", text: "Health checks passed, by hour (last 24 hours, grey = no checks)" }));
+          const strip = el("div", { cls: "strip", title: "" });
+          for (const h of ops.hourly24h) {
+            const tone = h.percent === null ? "" : h.percent >= 100 ? "ok" : h.percent >= 75 ? "warn" : "bad";
+            strip.append(el("span", { cls: tone, title: new Date(h.hour).toLocaleString() + ": " + (h.percent === null ? "no checks" : h.percent + "% passed") }));
+          }
+          c.append(strip, el("div", { cls: "strip-axis" }, el("span", { text: "24 h ago" }), el("span", { text: "now" })));
+        }
+      }
+      const det = el("details", {}, el("summary", { text: "How is availability measured?" }),
+        el("p", { text: "A Lambda function is not a server that stays running: AWS starts copies on demand and recycles them, so time since one copy started is not service availability. Synthetic availability is the share of scheduled checks that passed. A separate probe calls /health (the app's own health route) every hour. Request health comes from AWS CloudWatch and counts function-URL requests that did not return HTTP 5xx; the total includes the synthetic /health checks." }));
+      c.append(det);
+    }
+
+    function renderDeployments(d) {
+      heading("Delivery", "delivery", "What was released, when it was deployed, and how recent deployment runs ended.");
+      const g = grid();
       const dep = d.deployment || {};
-      if (dep.status === "unavailable") unavailable(card("Deployment"), dep);
-      else facts(card("Deployment"), [["Environment", dep.environment], ["Version", app.version], ["Stack", dep.stackName], ["Region", dep.region], ["Commit", dep.commit ? dep.commit.slice(0, 12) : null], ["Built", dep.builtAt], ["Workflow run", dep.workflowRunUrl ? link("open run", dep.workflowRunUrl) : null]]);
+      const cur = card(g, "Current deployment");
+      if (isUnavailable(dep)) unavailable(cur, dep);
+      else facts(cur, [["Environment", dep.environment], ["Version", (d.app || {}).version], ["Stack", dep.stackName], ["Region", dep.region], ["Commit", dep.commit ? dep.commit.slice(0, 12) : null], ["Built", when(dep.builtAt)], ["Workflow run", dep.workflowRunUrl ? link("open run", dep.workflowRunUrl) : null]]);
+
+      const hist = d.deploymentHistory;
+      const hc = card(g, "Recent deploy runs");
+      if (isUnavailable(hist)) unavailable(hc, hist);
+      else if (!(hist.items || []).length) hc.append(el("p", { cls: "muted", text: "No runs yet." }));
+      else table(hc, ["Run", "When", "Type", "Commit", "Result"], hist.items.map(r => {
+        const result = r.status !== "completed" ? (r.current ? "this deploy" : r.status) : r.conclusion;
+        return [link("#" + r.runNumber, r.url), when(r.startedAt), r.dryRun === true ? "dry run" : r.dryRun === false ? "deploy" : "—", r.commit ? r.commit.slice(0, 7) : null, pill(result || "unknown", result)];
+      }));
+    }
+
+    function renderSdlc(d) {
+      heading("SDLC", "sdlc", "Engineering evidence: tests, project documentation, and open work.");
+      const g = grid();
 
       const t = d.tests || {};
-      const s5 = card("Test cases", true);
-      if (t.status === "unavailable") unavailable(s5, t);
+      const tc = card(g, "Tests");
+      if (isUnavailable(t)) unavailable(tc, t);
       else {
-        const sum = t.summary || {};
-        facts(s5, [["Total", sum.total], ["Passed", sum.passed], ["Failed", sum.failed], ["Skipped", sum.skipped], ["Run at", t.ranAt]]);
-        if (Array.isArray(t.cases) && t.cases.length) table(s5, ["Suite", "Test", "Result"], t.cases.map(c => [c.suite, c.name, pill(c.status, c.status)]));
+        const s = t.summary || {};
+        tc.append(el("div", { cls: "counts" }, pill((s.passed || 0) + " passed", "ok"), pill((s.failed || 0) + " failed", s.failed ? "failed" : ""), pill((s.skipped || 0) + " skipped", s.skipped ? "skipped" : "")));
+        tc.append(el("p", { cls: "muted" }, document.createTextNode((s.total || 0) + " tests ran with the deployed build, "), when(t.ranAt)));
+        if (Array.isArray(t.cases) && t.cases.length) {
+          const failedFirst = [...t.cases].sort((a, b) => (a.status === "failed" ? 0 : 1) - (b.status === "failed" ? 0 : 1));
+          const det = el("details", {}, el("summary", { text: "Show all " + t.cases.length + " test cases" }));
+          if (s.failed) det.open = true;
+          table(det, ["Test", "Suite", "Result"], failedFirst.map(c => [c.name, c.suite, pill(c.status, c.status)]));
+          tc.append(det);
+        }
       }
 
       const docs = d.documentation || {};
-      const s6 = card("Documentation");
-      if (docs.status === "unavailable") unavailable(s6, docs);
-      else table(s6, ["Document", "Path"], (docs.items || []).map(i => [link(i.title || i.path, i.url), i.path]));
+      const dc = card(g, "Documentation");
+      if (isUnavailable(docs)) unavailable(dc, docs);
+      else table(dc, ["Document", "Path"], (docs.items || []).map(i => [link(i.title || i.path, i.url), i.path]));
 
       const iss = d.issues || {};
-      const s7 = card("Outstanding issues");
-      if (iss.status === "unavailable") unavailable(s7, iss);
+      const ic = card(g, "Issues");
+      if (isUnavailable(iss)) unavailable(ic, iss);
       else {
-        facts(s7, [["Open", iss.open], ["Fetched", iss.fetchedAt]]);
-        if (iss.titlesIncluded === false) s7.append(el("p", { cls: "unavailable", text: "Titles are hidden because the repository is private. See the repository's Issues tab." }));
-        else if (Array.isArray(iss.items) && iss.items.length) table(s7, ["#", "Title", "Labels"], iss.items.map(i => [link("#" + i.number, i.url), i.title, (i.labels || []).join(", ")]));
+        ic.append(el("div", { cls: "counts" }, pill(iss.open + " open", iss.open ? "attention" : "ok")));
+        ic.append(el("p", { cls: "muted" }, document.createTextNode("Checked "), when(iss.fetchedAt)));
+        const repo = (d.app || {}).repository;
+        if (iss.titlesIncluded === false) ic.append(el("p", { cls: "muted" }, document.createTextNode("Titles are hidden because the repository is private. "), repo ? link("Open the Issues tab", repo.replace(/\/$/, "") + "/issues") : null));
+        else if (Array.isArray(iss.items) && iss.items.length) table(ic, ["#", "Title", "Labels"], iss.items.map(i => [link("#" + i.number, i.url), i.title, (i.labels || []).join(", ")]));
       }
 
-      const reg = card("Registry", true);
-      facts(reg, [["Registry id", app.id], ["Owner", app.owner], ["Type", app.appType], ["Repository", app.repository ? link(app.repository, app.repository) : null], ["Skills used", (app.skillsUsed || []).join(", ")]]);
     }
 
-    fetch("api/dashboard", { cache: "no-store", headers: { Accept: "application/json" } })
-      .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-      .then(render)
-      .catch(err => { const box = document.getElementById("error"); box.textContent = "Could not load dashboard data. " + err.message; box.hidden = false; document.getElementById("subtitle").textContent = ""; });
+    function renderSecurity(d) {
+      heading("Security & dependencies", "security", "Dependency vulnerability findings from the latest available scans.");
+      const g = grid();
+      const dep = d.dependencies;
+      const sc = card(g, "Dependency alerts");
+      if (isUnavailable(dep)) unavailable(sc, dep);
+      else {
+        sc.append(el("div", { cls: "counts" }, pill((dep.totalAlerts || 0) + " open alerts", dep.totalAlerts ? "attention" : "ok")));
+        const bot = dep.dependabot || {}, audit = dep.pipAudit || {};
+        const sev = isUnavailable(bot) ? null : Object.entries(bot.bySeverity || {}).map(([k, v]) => v + " " + k).join(", ");
+        facts(sc, [
+          ["Dependabot", isUnavailable(bot) ? el("span", { cls: "unavailable", text: bot.reason || "not available" }) : bot.open + " open" + (sev ? " (" + sev + ")" : "")],
+          ["pip-audit", isUnavailable(audit) ? el("span", { cls: "unavailable", text: audit.reason || "not available" }) : audit.count + " known vulnerabilities in " + audit.packagesScanned + " packages"],
+          ["Checked", when(dep.fetchedAt)],
+        ]);
+        const rows = [];
+        for (const a of (bot.items || [])) rows.push([a.package, a.severity, link(a.summary || "advisory", a.url)]);
+        for (const v of (audit.items || [])) rows.push([v.package + " " + v.version, "fix: " + ((v.fixVersions || []).join(", ") || "none"), v.id]);
+        if (rows.length) table(sc, ["Package", "Severity / fix", "Advisory"], rows);
+        else if (dep.totalAlerts && (bot.detailsIncluded === false || audit.detailsIncluded === false)) sc.append(el("p", { cls: "muted", text: "Package details are hidden because the repository is private." }));
+      }
+    }
+
+    function renderUsage(d) {
+      heading("Usage", "usage", "Aggregate function-URL traffic from CloudWatch; request counts are not a count of people.");
+      const g = grid();
+      const req = (d.operations || {}).requests;
+      const c = card(g, "Function-URL traffic (all instances)");
+      if (!req) unavailable(c, (d.operations || {}).status === "not_applicable" ? { status: "not_applicable", reason: "Traffic totals are read from AWS CloudWatch for the Cloud One Lambda, so they do not apply when running locally." } : isUnavailable(d.operations) ? d.operations : { reason: "request statistics are not available" });
+      else {
+        table(c, ["Window", "Requests", "Client errors (4xx)", "Server errors (5xx)"], ["24h", "7d"].map(w => [w, (req[w] || {}).total, (req[w] || {}).clientErrors, (req[w] || {}).serverErrors]));
+        c.append(el("p", { cls: "muted", text: "From AWS CloudWatch. Includes the synthetic /health checks (about 24 a day); this is traffic volume, not unique visitors." }));
+      }
+
+      const u = d.usage || {};
+      const routes = Object.entries(u.byRoute || {}).sort((a, b) => b[1] - a[1]);
+      if (routes.length) {
+        const detail = el("details", {}, el("summary", { text: "Per-instance route diagnostics (not aggregate usage)" }));
+        detail.append(el("p", { cls: "muted" }, document.createTextNode("These in-memory counters cover only the Lambda copy that answered this request, since it started "), when(u.since), document.createTextNode(". They reset on restart and are not an application-wide total.")));
+        table(detail, ["Route", "Requests"], routes);
+        c.append(detail);
+      }
+    }
+
+    function render(d) {
+      root.replaceChildren();
+      document.getElementById("error").hidden = true;
+      const banner = sampleBanner(d);
+      if (banner) root.append(banner);
+      renderHeader(d);
+      renderOperations(d);
+      renderDeployments(d);
+      renderSdlc(d);
+      renderSecurity(d);
+      renderUsage(d);
+    }
+
+    function load() {
+      fetch("api/dashboard", { cache: "no-store", headers: { Accept: "application/json" } })
+        .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+        .then(render)
+        .catch(err => { const box = document.getElementById("error"); box.textContent = "Could not load dashboard data. " + err.message; box.hidden = false; });
+    }
+    load();
+    setInterval(load, REFRESH_MS);
   </script>
 </body>
 </html>

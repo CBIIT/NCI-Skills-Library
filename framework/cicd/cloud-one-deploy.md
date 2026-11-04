@@ -279,25 +279,14 @@ gh api repos/<owner>/<repo>/actions/runs/<run-id> \
 
 Once successful, obtain the application URL from stack outputs or the workflow log. Require HTTP 200 from the implemented root and health routes. Record the account, region, stack, role ARN, workflow run, endpoint, and smoke-test result without recording credentials.
 
-## Shared failure checks
-
-| Symptom | Likely cause | Resolution |
-|---|---|---|
-| `Not authorized to perform sts:AssumeRoleWithWebIdentity` although the visible repo/environment looks correct | Repository uses an immutable OIDC subject | Query the repository customization and use `sub_claim_prefix:environment:<env>`. |
-| `iam:UpdateAssumeRolePolicy` is denied | Boundary or deny policy blocks trust updates | Recreate only a role created in the current workflow that has never been used; otherwise escalate. |
-| `iam:CreateRole` is denied for a SAM-generated role | Generated role lacks the `power-user` prefix or boundary | Define the Lambda execution role explicitly with both requirements. |
-| CloudFormation requests IAM acknowledgement | Template assigns a role name | Deploy with `CAPABILITY_NAMED_IAM`. |
-| `/Stage/` works but `/dev/` returns 403 | SAM synthesized a duplicate stage | Set `OpenApiVersion: '3.0.1'` on the `AWS::Serverless::Api`. |
-| Initial stack is `ROLLBACK_COMPLETE` | A resource failed during stack creation | Inspect events and fix the cause. Delete and retry without another confirmation only when the stack is empty, was created during the current run, and cleanup was included in the approval envelope; otherwise obtain approval. |
-| SAM setup appears stuck | Slow fresh runner setup | Wait up to 10 minutes; cancel and retry once if there is still no progress. |
 ## Dashboard in the deploy workflow
 
 Web app, REST API, and MCP server projects include the [app-dashboard](../startup/app-dashboard.md) templates. Handle them in the deploy workflow as follows:
 
-1. Run the language tests with JUnit XML output into `dashboard-data/junit.xml`.
-2. Run `python scripts/build_dashboard_snapshot.py` before `sam build`, with `ENVIRONMENT`, `STACK_NAME`, and `AWS_REGION` set from the workflow's environment variables. Give the job `permissions: issues: read` and pass the automatic `GITHUB_TOKEN`; do not add a personal access token.
-3. Make sure the deployment package includes `dashboard.py` or `dashboard.mjs`, `dashboard.html`, and `dashboard-data/snapshot.json`.
-4. After deployment, require HTTP 200 from `<AppApiUrl>/dashboard` and from `<AppApiUrl>/api/dashboard`, and check that the JSON has `schemaVersion` `1` and `health.status` `ok`. Under API Gateway the URLs include the stage prefix (for example `/dev/dashboard`); Function URLs have no prefix.
+1. Run the language tests with JUnit XML output into `dashboard-data/junit.xml`. For Python projects, also run `pip install pip-audit` and `pip-audit -r requirements.txt -f json -o dashboard-data/pip-audit.json || true`; findings appear on the dashboard rather than failing the deploy.
+2. Run `python scripts/build_dashboard_snapshot.py` before `sam build`, with `ENVIRONMENT`, `STACK_NAME`, and `AWS_REGION` set from the workflow's environment variables. Give the job `permissions: issues: read`, `actions: read`, and `security-events: read` (the last two feed deploy history and Dependabot findings) and pass the automatic `GITHUB_TOKEN`; do not add a personal access token.
+3. Make sure the deployment package includes `dashboard.py` or `dashboard.mjs`, `dashboard.html`, and `dashboard-data/snapshot.json`. For Python apps, also include `ops_status.py` and `probe.py`, and merge `python/sam-dashboard-ops.yaml` from the [app-dashboard](../startup/app-dashboard.md) templates into `template.yaml` so the scheduled uptime probe, its table, and its role deploy with the app. The dry run should show those resources as additions and the app function as a modification.
+4. After deployment, require HTTP 200 from `<AppApiUrl>/dashboard` and from `<AppApiUrl>/api/dashboard`, and check that the JSON has `schemaVersion` `1` and `health.status` `ok`. Under API Gateway the URLs include the stage prefix (for example `/dev/dashboard`); Function URLs have no prefix. For Python apps with the probe, do not wait for it: report that Operational Status shows Unknown until the first scheduled run (within one schedule interval), then confirm `operations.probe.lastCheck.ok` is `true` on a later check.
 
 ## Reconcile the application registry
 
@@ -311,6 +300,17 @@ After the root, `/health`, `/dashboard`, and `/api/dashboard` checks pass, updat
 
 If no unique registry entry exists, stop and report that startup registration must be completed. Do not append or guess an identity during deployment.
 
+## Shared failure checks
+
+| Symptom | Likely cause | Resolution |
+|---|---|---|
+| `Not authorized to perform sts:AssumeRoleWithWebIdentity` although the visible repo/environment looks correct | Repository uses an immutable OIDC subject | Query the repository customization and use `sub_claim_prefix:environment:<env>`. |
+| `iam:UpdateAssumeRolePolicy` is denied | Boundary or deny policy blocks trust updates | Recreate only a role created in the current workflow that has never been used; otherwise escalate. |
+| `iam:CreateRole` is denied for a SAM-generated role | Generated role lacks the `power-user` prefix or boundary | Define the Lambda execution role explicitly with both requirements. |
+| CloudFormation requests IAM acknowledgement | Template assigns a role name | Deploy with `CAPABILITY_NAMED_IAM`. |
+| `/Stage/` works but `/dev/` returns 403 | SAM synthesized a duplicate stage | Set `OpenApiVersion: '3.0.1'` on the `AWS::Serverless::Api`. |
+| Initial stack is `ROLLBACK_COMPLETE` | A resource failed during stack creation | Inspect events and fix the cause. Delete and retry without another confirmation only when the stack is empty, was created during the current run, and cleanup was included in the approval envelope; otherwise obtain approval. |
+| SAM setup appears stuck | Slow fresh runner setup | Wait up to 10 minutes; cancel and retry once if there is still no progress. |
 | Explicit SCP deny on API Gateway creation | Organization policy blocks the operation | Capture the denial and use an approved alternative only after confirming the restriction. |
 | `No changes to deploy` | Template and package are unchanged | Treat as success when the existing stack is healthy. |
 | Missing variable or secret | GitHub environment is incomplete | Set the value on the `dev` environment and rerun. |

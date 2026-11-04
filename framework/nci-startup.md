@@ -67,6 +67,10 @@ If the user chooses a Web Page during startup, invoke the hello-world-web-app sk
 
 For the Web Page, REST API Interface, and MCP Server types, the hello-world skill must also invoke the [app-dashboard](startup/app-dashboard.md) skill so the app exposes `GET /dashboard` and `GET /api/dashboard`. The Local Command Line Script type is excluded.
 
+### Existing projects get the dashboard too
+
+When `nci-startup` runs for an existing project (the user chose "Existing project", or the working directory already holds a web app, REST API, or MCP server), do not build a Hello, World baseline. After inspecting the project and collecting the remaining answers, invoke the [app-dashboard](startup/app-dashboard.md) skill using its "Existing projects: install or upgrade" path: install the dashboard if the project has none, upgrade it if it has an older template, or verify it if it is current. Show the plan and get the user's confirmation before changing files, make only additive changes, keep the project's existing routes and tests passing, and verify locally before any deployment. Local command-line scripts are excluded.
+
 ## GitHub MCP Preflight Gate
 
 Before the first GitHub-side action — including reading or updating the registry, creating or verifying a repository, committing GitHub-hosted content, opening a pull request, configuring deployment, or checking a workflow run — load [github-mcp-actions.md](technology/github/github-mcp-actions.md) and complete its GitHub MCP preflight gate.
