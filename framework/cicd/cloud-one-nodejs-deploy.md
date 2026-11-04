@@ -1,6 +1,6 @@
 ---
 name: cloud-one-github-actions-nodejs-lambda-deployment
-description: 'Deploy a Node.js Lambda or Express application to NCI Cloud One Development through GitHub Actions and AWS SAM. Use for Node.js apps that need boundary-safe Lambda roles, exact GitHub OIDC trust, dry-run review, and verified dev endpoints. Do not use for Python applications or production deployment.'
+description: 'Deploy a Node.js Lambda or Express application to NCI Cloud One Development through GitHub Actions and AWS SAM. Use for Node.js apps that need the shared Cloud One OIDC, permission-boundary, MCP-first GitHub, dry-run, registry, and verification controls. Do not use for Python or Java applications or production deployment.'
 argument-hint: 'Provide app name, GitHub repository (owner/repo), and Cloud One Development account'
 user-invocable: true
 ---
